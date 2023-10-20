@@ -1,7 +1,5 @@
 package com.paws.application.services.customers.common;
 
-import com.paws.persistence.common.Gender;
-
 public class CustomerAuthenticationResult {
     private CustomerDto customerDto;
     private String token;

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/shared/_layout}">
+<head>
+    <title>Dịch vụ Spa</title>
+</head>
+<body>
+<div layout:fragment="body">
+    <h1 class="mt-4">Dịch vụ Spa</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/services}">Dịch vụ Spa</a></li>
+        <li class="breadcrumb-item active">Thêm mới</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-body">
+            <a type="button" class="btn btn-danger" th:href="@{/services}">Trở về</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-plus me-1"></i>
+            Thêm mới dịch vụ
+        </div>
+        <div class="card-body">
+            <form method="POST" th:action="@{/services/new}" th:object="${createRequest}">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Tên dịch vụ</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}">
+                    <div class="form-text text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="4"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="price" class="form-label">Giá mặc định (VND)</label>
+                    <input type="number" class="form-control" id="price" th:field="*{defaultPrice}">
+                    <div class="form-text text-danger" th:if="${#fields.hasErrors('defaultPrice')}" th:errors="*{defaultPrice}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="minutes" class="form-label">Số phút hoàn thành ước lượng (phút)</label>
+                    <input type="number" class="form-control" id="minutes" th:field="*{defaultEstimatedCompletionMinutes}">
+                    <div class="form-text text-danger" th:if="${#fields.hasErrors('defaultEstimatedCompletionMinutes')}" th:errors="*{defaultEstimatedCompletionMinutes}"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script th:if="${error != null}">
+        const errorMsg = "[[${error}]]";
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: errorMsg
+        });
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/shared/_layout}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title>Content page</title>
+</head>
+<body>
+<section layout:fragment="body">
+    <p>This is a paragraph from the content page</p>
+    <span sec:authentication="name"></span>
+</section>
+</body>
+</html>

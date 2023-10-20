@@ -1,6 +1,6 @@
 package com.paws.persistence.entities;
 
-import com.paws.persistence.common.BillStatus;
+import com.paws.persistence.common.enums.BillStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;

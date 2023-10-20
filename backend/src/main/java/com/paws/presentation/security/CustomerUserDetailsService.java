@@ -23,7 +23,7 @@ public class CustomerUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Customer customer = customerRepository.findFirstByUsernameEquals(username);
+        Customer customer = customerRepository.getCustomerByUsername(username);
         if(customer == null) {
             throw new UsernameNotFoundException("Username does not exist.");
         }

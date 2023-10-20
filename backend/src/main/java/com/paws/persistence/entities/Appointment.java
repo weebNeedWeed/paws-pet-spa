@@ -1,6 +1,7 @@
 package com.paws.persistence.entities;
 
-import com.paws.persistence.common.AppointmentLocation;
+import com.paws.persistence.common.enums.AppointmentLocation;
+import com.paws.persistence.common.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -9,9 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "appoinments")
@@ -32,6 +31,9 @@ public class Appointment {
     @Max(2)
     @Column(nullable = false)
     private int numPets;
+
+    @Column(nullable = false)
+    private AppointmentStatus status;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -1,4 +1,4 @@
-package com.paws.persistence.common;
+package com.paws.persistence.common.enums;
 
 public enum AppointmentLocation {
     AT_HOME,

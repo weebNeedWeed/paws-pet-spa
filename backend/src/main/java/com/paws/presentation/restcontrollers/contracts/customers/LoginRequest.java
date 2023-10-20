@@ -1,4 +1,4 @@
-package com.paws.presentation.restcontrollers.common.customers;
+package com.paws.presentation.restcontrollers.contracts.customers;
 
 public class LoginRequest {
     private String username;

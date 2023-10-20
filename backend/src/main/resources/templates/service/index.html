@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/shared/_layout}">
+<head>
+    <title>Dịch vụ Spa</title>
+</head>
+<body>
+<div layout:fragment="body">
+    <h1 class="mt-4">Dịch vụ Spa</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+        <li class="breadcrumb-item active">Dịch vụ Spa</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-body">
+            <a type="button" class="btn btn-primary" th:href="@{/services/new}">Thêm mới</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Danh sách dịch vụ
+        </div>
+        <div class="card-body">
+            <table id="servicesTable">
+                <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên dịch vụ</th>
+                    <th>Giá cả mặc định (VND)</th>
+                    <th>Số phút hoàn thành ước lượng</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="sv : ${spaServices}">
+                        <td th:text="${sv.getId()}"></td>
+                        <td th:text="${sv.getName()}"></td>
+                        <td th:text="${sv.getDefaultPrice()}"></td>
+                        <td th:text="${sv.getDefaultEstimatedCompletionMinutes()}"></td>
+                        <td>
+                            <button title="Xem chi tiết" type="submit" class="btn btn-primary text-white">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script type="text/javascript" th:src="@{/js/services/scripts.js}">
+    </script>
+</div>
+</body>
+</html>

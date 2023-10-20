@@ -1,6 +1,6 @@
 package com.paws.application.services.customers.common;
 
-import com.paws.persistence.common.Gender;
+import com.paws.persistence.common.enums.Gender;
 
 public class CustomerDto {
     private long id;

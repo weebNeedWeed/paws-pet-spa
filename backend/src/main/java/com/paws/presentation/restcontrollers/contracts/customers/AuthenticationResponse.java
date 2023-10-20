@@ -1,6 +1,6 @@
-package com.paws.presentation.restcontrollers.common.customers;
+package com.paws.presentation.restcontrollers.contracts.customers;
 
-import com.paws.persistence.common.Gender;
+import com.paws.persistence.common.enums.Gender;
 
 public class AuthenticationResponse {
     private long id;

@@ -2,6 +2,7 @@ package com.paws.persistence.entities;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,14 +20,14 @@ public class SpaService {
 
     private String description;
 
-    @Column(nullable = false)
-    private float defaultPrice;
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal defaultPrice;
 
     @Column(nullable = false)
     private float defaultEstimatedCompletionMinutes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "spaService", orphanRemoval = true)
-    private List<SpaServicePricing> spaServicePricingList = new ArrayList<>();
+    private List<SpaServiceDetail> spaServiceDetails = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "spaServices")
     private Set<AppointmentItem> appointmentItems = new HashSet<>();
@@ -58,11 +59,11 @@ public class SpaService {
         this.description = description;
     }
 
-    public float getDefaultPrice() {
+    public BigDecimal getDefaultPrice() {
         return defaultPrice;
     }
 
-    public void setDefaultPrice(float defaultPrice) {
+    public void setDefaultPrice(BigDecimal defaultPrice) {
         this.defaultPrice = defaultPrice;
     }
 
@@ -72,5 +73,10 @@ public class SpaService {
 
     public void setDefaultEstimatedCompletionMinutes(float defaultEstimatedCompletionMinutes) {
         this.defaultEstimatedCompletionMinutes = defaultEstimatedCompletionMinutes;
+    }
+
+    public void addDetail(SpaServiceDetail detail) {
+        this.spaServiceDetails.add(detail);
+        detail.setSpaService(this);
     }
 }

@@ -29,8 +29,8 @@
                 <tr>
                     <th>Mã</th>
                     <th>Tên dịch vụ</th>
-                    <th>Giá cả mặc định (VND)</th>
-                    <th>Số phút hoàn thành ước lượng</th>
+<!--                    <th>Giá cả mặc định (VND)</th>-->
+<!--                    <th>Số phút hoàn thành ước lượng</th>-->
                     <th></th>
                 </tr>
                 </thead>
@@ -38,12 +38,12 @@
                     <tr th:each="sv : ${spaServices}">
                         <td th:text="${sv.getId()}"></td>
                         <td th:text="${sv.getName()}"></td>
-                        <td th:text="${sv.getDefaultPrice()}"></td>
-                        <td th:text="${sv.getDefaultEstimatedCompletionMinutes()}"></td>
+<!--                        <td th:text="${sv.getDefaultPrice()}"></td>-->
+<!--                        <td th:text="${sv.getDefaultEstimatedCompletionMinutes()}"></td>-->
                         <td>
-                            <button title="Xem chi tiết" type="submit" class="btn btn-primary text-white">
+                            <a th:href="@{/services/{serviceId}/details(serviceId=${sv.getId()})}" title="Xem chi tiết" class="btn btn-primary text-white">
                                 <i class="fa-solid fa-eye"></i>
-                            </button>
+                            </a>
                         </td>
                     </tr>
                 </tbody>

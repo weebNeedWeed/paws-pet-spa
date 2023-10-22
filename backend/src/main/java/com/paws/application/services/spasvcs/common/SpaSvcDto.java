@@ -1,10 +1,12 @@
 package com.paws.application.services.spasvcs.common;
 
+import java.math.BigDecimal;
+
 public class SpaSvcDto {
     private long id;
     private String name;
     private String description;
-    private float defaultPrice;
+    private BigDecimal defaultPrice;
     private float defaultEstimatedCompletionMinutes;
 
     public SpaSvcDto() {
@@ -34,11 +36,11 @@ public class SpaSvcDto {
         this.description = description;
     }
 
-    public float getDefaultPrice() {
+    public BigDecimal getDefaultPrice() {
         return defaultPrice;
     }
 
-    public void setDefaultPrice(float defaultPrice) {
+    public void setDefaultPrice(BigDecimal defaultPrice) {
         this.defaultPrice = defaultPrice;
     }
 

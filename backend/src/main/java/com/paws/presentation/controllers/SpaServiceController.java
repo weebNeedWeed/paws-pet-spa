@@ -9,10 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -69,9 +66,32 @@ public class SpaServiceController {
         try {
             spaSvcService.deleteService(serviceId);
         } catch(SpaServiceNotFoundException ex) {
-
         }
 
         return "redirect:/services";
+    }
+
+    @GetMapping("{serviceId}/details")
+    public String details(@PathVariable("serviceId") long serviceId, Model model) {
+        SpaSvcDto service = spaSvcService.getServiceById(serviceId);
+        if(service == null) {
+            return "redirect:/services";
+        }
+
+        model.addAttribute("spaService", service);
+
+        return "service/details";
+    }
+
+    @GetMapping("{serviceId}/edit")
+    public String edit(@PathVariable("serviceId") long serviceId, Model model) {
+        SpaSvcDto service = spaSvcService.getServiceById(serviceId);
+        if(service == null) {
+            return "redirect:/services";
+        }
+
+        model.addAttribute("spaService", service);
+
+        return "service/edit";
     }
 }

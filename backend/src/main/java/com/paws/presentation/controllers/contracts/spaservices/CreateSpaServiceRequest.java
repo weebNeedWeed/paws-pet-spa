@@ -3,6 +3,9 @@ package com.paws.presentation.controllers.contracts.spaservices;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 
 public class CreateSpaServiceRequest {
     @NotEmpty(message = "Tên không được rỗng.")
@@ -10,7 +13,8 @@ public class CreateSpaServiceRequest {
     private String description;
 
     @DecimalMin(message = "Giá tiền phải lớn hơn 1000 VND.", value = "1000")
-    private float defaultPrice;
+    @NotNull(message = "Giá tiền không được rỗng")
+    private BigDecimal defaultPrice;
     
     @DecimalMin(message = "Thời gian phải lớn hơn 1 phút.", value = "1.0")
     private float defaultEstimatedCompletionMinutes;
@@ -34,11 +38,11 @@ public class CreateSpaServiceRequest {
         this.description = description;
     }
 
-    public float getDefaultPrice() {
+    public BigDecimal getDefaultPrice() {
         return defaultPrice;
     }
 
-    public void setDefaultPrice(float defaultPrice) {
+    public void setDefaultPrice(BigDecimal defaultPrice) {
         this.defaultPrice = defaultPrice;
     }
 

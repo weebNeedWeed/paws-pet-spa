@@ -21,10 +21,6 @@
                 <i class="fa-solid fa-pen"></i>
             </a>
 
-            <a type="button" class="btn btn-warning text-white">
-                <i class="fa-solid fa-dollar-sign"></i>
-            </a>
-
             <form method="POST" th:action="@{/services/delete}">
                 <input type="hidden" th:value="${spaService.getId()}" name="serviceId" />
                 <button class="btn btn-danger text-white" type="submit">
@@ -67,6 +63,32 @@
                         <td><b>Số phút hoàn thành ước lượng mặc định:</b></td>
                         <td th:text="${spaService.getDefaultEstimatedCompletionMinutes()}"></td>
                     </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <h3 class="mt-4 mb-3">Chi tiết dịch vụ</h3>
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Cân nặng</th>
+                    <th>Giá tiền (VND)</th>
+                    <th>Thời gian hoàn thành ước lượng (phút)</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="detail : ${serviceDetails}">
+                    <td>
+                        Từ
+                        <span th:text="${#numbers.formatDecimal(detail.minWeight, 1, 1)}"></span> đến
+                        <span th:text="${#numbers.formatDecimal(detail.maxWeight, 1, 1)}"></span> kg
+                    </td>
+                    <th th:text="${#numbers.formatCurrency(detail.price)}"></th>
+                    <th th:text="${#numbers.formatDecimal(detail.estimatedCompletionMinutes,1,1)}"></th>
+                </tr>
                 </tbody>
             </table>
         </div>

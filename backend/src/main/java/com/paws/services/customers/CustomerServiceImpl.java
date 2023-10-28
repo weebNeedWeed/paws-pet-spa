@@ -1,8 +1,8 @@
 package com.paws.services.customers;
 
 import com.paws.exceptions.UsernameAlreadyExistsException;
-import com.paws.services.customers.common.CustomerAuthenticationResult;
-import com.paws.services.customers.common.CustomerDto;
+import com.paws.services.customers.payloads.CustomerAuthenticationResult;
+import com.paws.services.customers.payloads.CustomerDto;
 import com.paws.services.jwts.JwtService;
 import com.paws.entities.common.enums.AppointmentLocation;
 import com.paws.entities.common.enums.Gender;

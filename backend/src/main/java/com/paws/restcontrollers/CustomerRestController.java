@@ -2,11 +2,11 @@ package com.paws.restcontrollers;
 
 import com.paws.exceptions.UsernameAlreadyExistsException;
 import com.paws.services.customers.CustomerService;
-import com.paws.services.customers.common.CustomerAuthenticationResult;
+import com.paws.services.customers.payloads.CustomerAuthenticationResult;
 import com.paws.models.customers.AuthenticationResponse;
 import com.paws.models.customers.LoginRequest;
 import com.paws.models.customers.RegisterRequest;
-import com.paws.services.customers.common.CustomerDto;
+import com.paws.services.customers.payloads.CustomerDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

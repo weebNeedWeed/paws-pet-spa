@@ -3,7 +3,9 @@ package com.paws.services.spasvcs;
 import com.paws.exceptions.InvalidWeightRangeException;
 import com.paws.exceptions.SpaServiceNameAlreadyExistsException;
 import com.paws.exceptions.SpaServiceNotFoundException;
-import com.paws.services.spasvcs.common.SpaSvcDto;
+import com.paws.repositories.SpaServiceDetailRepository;
+import com.paws.services.spasvcs.payloads.ServiceDetailDto;
+import com.paws.services.spasvcs.payloads.SpaSvcDto;
 import com.paws.entities.PetWeightRange;
 import com.paws.entities.SpaService;
 import com.paws.entities.SpaServiceDetail;
@@ -19,11 +21,13 @@ import java.util.List;
 @Service
 public class SpaSvcServiceImpl implements SpaSvcService{
     private final SpaServiceRepository spaServiceRepository;
+    private final SpaServiceDetailRepository spaServiceDetailRepository;
     private final PetWeightRangeRepository petWeightRangeRepository;
 
     @Autowired
-    public SpaSvcServiceImpl(SpaServiceRepository spaServiceRepository, PetWeightRangeRepository petWeightRangeRepository) {
+    public SpaSvcServiceImpl(SpaServiceRepository spaServiceRepository, SpaServiceDetailRepository spaServiceDetailRepository, PetWeightRangeRepository petWeightRangeRepository) {
         this.spaServiceRepository = spaServiceRepository;
+        this.spaServiceDetailRepository = spaServiceDetailRepository;
         this.petWeightRangeRepository = petWeightRangeRepository;
     }
 
@@ -116,6 +120,47 @@ public class SpaSvcServiceImpl implements SpaSvcService{
         service.setDefaultEstimatedCompletionMinutes(defaultEstimatedCompletionMinutes);
 
         spaServiceRepository.save(service);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceDetailDto> getAllDetails(long serviceId) throws SpaServiceNotFoundException {
+        SpaService service = spaServiceRepository.getSpaServiceById(serviceId);
+        if(service == null) {
+            throw new SpaServiceNotFoundException();
+        }
+
+        List<SpaServiceDetail> spaServiceDetails = service.getSpaServiceDetails();
+        List<ServiceDetailDto> serviceDetailDtos = spaServiceDetails.stream()
+                .map(x -> {
+                    ServiceDetailDto dto = new ServiceDetailDto();
+                    dto.setMinWeight(x.getSpaServiceDetailId().getPetWeightRangeId().getMinWeight());
+                    dto.setMaxWeight(x.getSpaServiceDetailId().getPetWeightRangeId().getMaxWeight());
+                    dto.setPrice(x.getPrice());
+                    dto.setEstimatedCompletionMinutes(x.getEstimatedCompletionMinutes());
+
+                    return dto;
+                }).toList();
+
+        return serviceDetailDtos;
+    }
+
+    @Override
+    public void deleteDetail(long serviceId, BigDecimal minWeight, BigDecimal maxWeight) throws SpaServiceNotFoundException {
+        SpaService service = spaServiceRepository.getSpaServiceById(serviceId);
+        if(service == null) {
+            throw new SpaServiceNotFoundException();
+        }
+
+        PetWeightRange.PetWeightRangeId petWeightRangeId =new PetWeightRange.PetWeightRangeId();
+        petWeightRangeId.setMinWeight(minWeight);
+        petWeightRangeId.setMinWeight(maxWeight);
+
+        SpaServiceDetail.SpaServiceDetailId spaServiceDetailId = new SpaServiceDetail.SpaServiceDetailId();
+        spaServiceDetailId.setSpaServiceId(serviceId);
+        spaServiceDetailId.setPetWeightRangeId(petWeightRangeId);
+
+        spaServiceDetailRepository.deleteSpaServiceDetail(serviceId, minWeight, maxWeight);
     }
 
     private SpaSvcDto mapSpaServiceToSpaSvcDto(SpaService spaService) {

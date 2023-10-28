@@ -1,4 +1,4 @@
-package com.paws.services.spasvcs.common;
+package com.paws.services.spasvcs.payloads;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

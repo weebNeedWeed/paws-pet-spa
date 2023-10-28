@@ -3,7 +3,8 @@ package com.paws.services.spasvcs;
 import com.paws.exceptions.InvalidWeightRangeException;
 import com.paws.exceptions.SpaServiceNameAlreadyExistsException;
 import com.paws.exceptions.SpaServiceNotFoundException;
-import com.paws.services.spasvcs.common.SpaSvcDto;
+import com.paws.services.spasvcs.payloads.ServiceDetailDto;
+import com.paws.services.spasvcs.payloads.SpaSvcDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,4 +34,8 @@ public interface SpaSvcService {
             String description,
             BigDecimal defaultPrice,
             float defaultEstimatedCompletionMinutes) throws SpaServiceNotFoundException, SpaServiceNameAlreadyExistsException;
+
+    List<ServiceDetailDto> getAllDetails(long serviceId) throws SpaServiceNotFoundException;
+
+    void deleteDetail(long serviceId, BigDecimal minWeight, BigDecimal maxWeight) throws SpaServiceNotFoundException;
 }

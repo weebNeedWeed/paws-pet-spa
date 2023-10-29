@@ -1,8 +1,10 @@
 package com.paws.controllers;
 
+import com.paws.entities.SpaService;
 import com.paws.exceptions.InvalidWeightRangeException;
 import com.paws.exceptions.SpaServiceNameAlreadyExistsException;
 import com.paws.exceptions.SpaServiceNotFoundException;
+import com.paws.models.spaservices.EditSpaServiceRequest;
 import com.paws.models.spaservices.ServiceDetailByWeightRange;
 import com.paws.models.spaservices.UpdateGeneralInformationRequest;
 import com.paws.services.spasvcs.SpaSvcService;
@@ -56,7 +58,7 @@ public class SpaServiceController {
         }
 
         try {
-            SpaSvcDto result = spaSvcService.addService(
+            spaSvcService.addService(
                     request.getName(),
                     request.getDescription(),
                     request.getDefaultPrice(),
@@ -103,43 +105,21 @@ public class SpaServiceController {
             return "redirect:/services";
         }
 
-        UpdateGeneralInformationRequest generalRequest = new UpdateGeneralInformationRequest();
-        generalRequest.setName(service.getName());
-        generalRequest.setDescription(service.getDescription());
-        generalRequest.setDefaultPrice(service.getDefaultPrice());
-        generalRequest.setDefaultEstimatedCompletionMinutes(service.getDefaultEstimatedCompletionMinutes());
-
-        model.addAttribute("generalRequest", generalRequest);
-        model.addAttribute("spaService", service);
-
-        List<ServiceDetailDto> serviceDetails = spaSvcService.getAllDetails(service.getId());
-        List<WeightRangeDto> weightRanges = weightRangeService.getAllWeightRanges();
-
-        List<ServiceDetailDto> addableListOfDetails = new ArrayList<>(serviceDetails);
-
-        for(WeightRangeDto range : weightRanges) {
-            boolean containsRange = serviceDetails.stream().anyMatch(x -> x.getMinWeight().equals(range.getMinWeight()) &&
-                    x.getMaxWeight().equals(range.getMaxWeight()));
-            if(containsRange) {
-                continue;
-            }
-
-            ServiceDetailDto dto = new ServiceDetailDto();
-            dto.setMinWeight(range.getMinWeight());
-            dto.setMaxWeight(range.getMaxWeight());
-            addableListOfDetails.add(dto);
-        }
-
-        model.addAttribute("serviceDetails", addableListOfDetails);
+        EditSpaServiceRequest request = getEditSpaServiceRequest(service);
+        model.addAttribute("editRequest", request);
 
         return "service/edit";
     }
 
     @PostMapping("{serviceId}/edit/general")
     public String editGeneral(@PathVariable("serviceId") long serviceId,
-                              @Valid @ModelAttribute("generalRequest") UpdateGeneralInformationRequest request,
-                              BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+                              @Valid @ModelAttribute("editRequest") EditSpaServiceRequest request,
+                              BindingResult bindingResult,Model model, RedirectAttributes redirectAttributes) throws SpaServiceNotFoundException {
         if(bindingResult.hasErrors()) {
+            SpaSvcDto service = spaSvcService.getServiceById(serviceId);
+            request.setDetails(getListOfDetails(service));
+            request.setId(service.getId());
+
             return "service/edit";
         }
 
@@ -188,5 +168,40 @@ public class SpaServiceController {
         }
 
         return "redirect:/services/" + serviceId + "/edit";
+    }
+
+    private EditSpaServiceRequest getEditSpaServiceRequest(SpaSvcDto service) throws SpaServiceNotFoundException {
+        EditSpaServiceRequest request = new EditSpaServiceRequest();
+        request.setId(service.getId());
+        request.setName(service.getName());
+        request.setDescription(service.getDescription());
+        request.setDefaultPrice(service.getDefaultPrice());
+        request.setDefaultEstimatedCompletionMinutes(service.getDefaultEstimatedCompletionMinutes());
+
+        request.setDetails(getListOfDetails(service));
+
+        return request;
+    }
+
+    private List<ServiceDetailDto> getListOfDetails(SpaSvcDto service) throws SpaServiceNotFoundException {
+        List<ServiceDetailDto> serviceDetails = spaSvcService.getAllDetails(service.getId());
+        List<WeightRangeDto> weightRanges = weightRangeService.getAllWeightRanges();
+
+        List<ServiceDetailDto> addableListOfDetails = new ArrayList<>(serviceDetails);
+
+        for(WeightRangeDto range : weightRanges) {
+            boolean containsRange = serviceDetails.stream().anyMatch(x -> x.getMinWeight().equals(range.getMinWeight()) &&
+                    x.getMaxWeight().equals(range.getMaxWeight()));
+            if(containsRange) {
+                continue;
+            }
+
+            ServiceDetailDto dto = new ServiceDetailDto();
+            dto.setMinWeight(range.getMinWeight());
+            dto.setMaxWeight(range.getMaxWeight());
+            addableListOfDetails.add(dto);
+        }
+
+        return addableListOfDetails;
     }
 }

@@ -8,16 +8,16 @@
 </head>
 <body>
 <div layout:fragment="body">
-    <h1 class="mt-4">Chỉnh sửa dịch vụ [[${spaService.getName()}]]</h1>
+    <h1 class="mt-4">Chỉnh sửa dịch vụ [[${editRequest.name}]]</h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
         <li class="breadcrumb-item"><a th:href="@{/services}">Dịch vụ Spa</a></li>
-        <li class="breadcrumb-item active" th:text="${spaService.getName()}"></li>
+        <li class="breadcrumb-item active" th:text="${editRequest.name}"></li>
     </ol>
     <div class="card mb-4">
         <div class="card-body d-flex gap-2">
             <a type="button" class="btn btn-danger"
-               th:href="@{/services/{serviceId}/details(serviceId=${spaService.getId()})}">
+               th:href="@{/services/{serviceId}/details(serviceId=${editRequest.id})}">
                 Trở về
             </a>
         </div>
@@ -25,12 +25,12 @@
     <div class="card mb-4">
         <div class="card-header">
             <i class="fa-solid fa-paw"></i>
-            [[${spaService.getName()}]]
+            [[${editRequest.name}]]
         </div>
         <div class="card-body">
             <h3 class="mt-1 mb-3">Thông tin tổng quát</h3>
 
-            <form method="POST" th:action="@{/services/{serviceId}/edit/general(serviceId=${spaService.getId()})}" th:object="${generalRequest}">
+            <form method="POST" th:action="@{/services/{serviceId}/edit/general(serviceId=${editRequest.id})}" th:object="${editRequest}">
                 <div class="mb-3">
                     <label for="name" class="form-label">Tên dịch vụ</label>
                     <input type="text" class="form-control" id="name" th:field="*{name}">
@@ -61,29 +61,29 @@
 
             <h3 class="mt-4 mb-3">Chi tiết dịch vụ</h3>
 
-            <div th:each="detail : ${serviceDetails}" th:with="randId=${#strings.randomAlphanumeric(10)}">
-                <form method="POST" th:id="${randId}" th:action="@{/services/{serviceId}/delete/detail(serviceId=${spaService.getId()})}">
-                    <input type="hidden" name="minWeight" th:value="${detail.getMinWeight()}">
-                    <input type="hidden" name="maxWeight" th:value="${detail.getMaxWeight()}">
+            <div th:each="detail : ${editRequest.details}" th:with="randId=${#strings.randomAlphanumeric(10)}">
+                <form method="POST" th:id="${randId}" th:action="@{/services/{serviceId}/delete/detail(serviceId=${editRequest.id})}">
+                    <input type="hidden" name="minWeight" th:value="${detail.minWeight}">
+                    <input type="hidden" name="maxWeight" th:value="${detail.maxWeight}">
                 </form>
 
-                <form class="mb-4" method="POST" th:action="@{/services/{serviceId}/edit/detail(serviceId=${spaService.getId()})}">
+                <form class="mb-4" method="POST" th:action="@{/services/{serviceId}/edit/detail(serviceId=${editRequest.id})}">
                     <div class="fw-bolder">Cân nặng thú cưng từ
-                        <span th:text="${#numbers.formatDecimal(detail.getMinWeight(), 1, 1)}"></span> đến
-                        <span th:text="${#numbers.formatDecimal(detail.getMaxWeight(), 1, 1)}"></span> kg:</div>
+                        <span th:text="${#numbers.formatDecimal(detail.minWeight, 1, 1)}"></span> đến
+                        <span th:text="${#numbers.formatDecimal(detail.maxWeight, 1, 1)}"></span> kg:</div>
 
-                    <input type="hidden" name="minWeight" th:value="${detail.getMinWeight()}">
-                    <input type="hidden" name="maxWeight" th:value="${detail.getMaxWeight()}">
+                    <input type="hidden" name="minWeight" th:value="${detail.minWeight}">
+                    <input type="hidden" name="maxWeight" th:value="${detail.maxWeight}">
 
                     <div class="d-flex flex-row gap-4">
                         <div>
                             <label class="form-label">Giá dịch vụ:</label>
-                            <input required type="number" class="form-control" name="price" th:value="${detail.getPrice()}">
+                            <input required type="number" class="form-control" name="price" th:value="${detail.price}">
                         </div>
 
                         <div>
                             <label class="form-label">Thời gian hoàn thành:</label>
-                            <input required type="number" class="form-control" name="estimatedCompletionMinutes" th:value="${detail.getEstimatedCompletionMinutes()}">
+                            <input required type="number" class="form-control" name="estimatedCompletionMinutes" th:value="${detail.estimatedCompletionMinutes}">
                         </div>
                     </div>
 

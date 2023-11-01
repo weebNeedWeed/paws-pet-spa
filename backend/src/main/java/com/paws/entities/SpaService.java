@@ -15,7 +15,6 @@ import java.util.Set;
 @Entity
 @Table(name = "spa_services")
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SpaService {
@@ -37,7 +36,7 @@ public class SpaService {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "spaService", orphanRemoval = true)
     private List<SpaServiceDetail> spaServiceDetails = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "spaServices")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "spaServices", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private Set<AppointmentItem> appointmentItems = new HashSet<>();
 
     public void addDetail(SpaServiceDetail detail) {

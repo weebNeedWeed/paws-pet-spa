@@ -7,8 +7,11 @@ import com.paws.models.customers.AuthenticationResponse;
 import com.paws.models.customers.LoginRequest;
 import com.paws.models.customers.RegisterRequest;
 import com.paws.services.customers.payloads.CustomerDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +40,7 @@ public class CustomerRestController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) throws UsernameAlreadyExistsException {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) throws UsernameAlreadyExistsException {
         CustomerAuthenticationResult result = customerService.register(request.getUsername(),
                 request.getPassword(),
                 request.getEmail(),
@@ -50,16 +53,15 @@ public class CustomerRestController {
     }
 
     private AuthenticationResponse mapToAuthResponse(CustomerAuthenticationResult result) {
-        CustomerDto customerDto = result.getCustomerDto();
-        AuthenticationResponse response = AuthenticationResponse.builder()
-                .address(customerDto.getAddress())
-                .email(customerDto.getEmail())
-                .fullName(customerDto.getFullName())
-                .gender(customerDto.getGender())
-                .username(customerDto.getUsername())
-                .phoneNumber(customerDto.getPhoneNumber())
-                .id(customerDto.getId())
-                .token(result.getToken()).build();
+        AuthenticationResponse response = new AuthenticationResponse();
+        response.setAddress(result.getCustomerDto().getAddress());
+        response.setEmail(result.getCustomerDto().getEmail());
+        response.setFullName(result.getCustomerDto().getFullName());
+        response.setGender(result.getCustomerDto().getGender());
+        response.setUsername(result.getCustomerDto().getUsername());
+        response.setPhoneNumber(result.getCustomerDto().getPhoneNumber());
+        response.setId(result.getCustomerDto().getId());
+        response.setToken(result.getToken());
 
         return response;
     }

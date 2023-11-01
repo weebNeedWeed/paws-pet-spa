@@ -7,6 +7,7 @@ import com.paws.entities.Role;
 import com.paws.repositories.EmployeeRepository;
 import com.paws.repositories.RoleRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class EmployeeDataSeeder implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired
     public EmployeeDataSeeder(EmployeeRepository employeeRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.employeeRepository = employeeRepository;
         this.roleRepository = roleRepository;

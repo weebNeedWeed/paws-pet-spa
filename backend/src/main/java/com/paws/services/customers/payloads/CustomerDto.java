@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
 public class CustomerDto {
     private long id;

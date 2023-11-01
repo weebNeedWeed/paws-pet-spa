@@ -1,12 +1,10 @@
 package com.paws.controllers;
 
-import com.paws.entities.SpaService;
 import com.paws.exceptions.InvalidWeightRangeException;
 import com.paws.exceptions.SpaServiceNameAlreadyExistsException;
 import com.paws.exceptions.SpaServiceNotFoundException;
 import com.paws.models.spaservices.EditSpaServiceRequest;
 import com.paws.models.spaservices.ServiceDetailByWeightRange;
-import com.paws.models.spaservices.UpdateGeneralInformationRequest;
 import com.paws.services.spasvcs.SpaSvcService;
 import com.paws.services.spasvcs.payloads.ServiceDetailDto;
 import com.paws.services.spasvcs.payloads.SpaSvcDto;
@@ -14,6 +12,7 @@ import com.paws.models.spaservices.CreateSpaServiceRequest;
 import com.paws.services.weightranges.WeightRangeService;
 import com.paws.services.weightranges.payloads.WeightRangeDto;
 import jakarta.validation.Valid;
+import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class SpaServiceController {
     private final SpaSvcService spaSvcService;
     private final WeightRangeService weightRangeService;
 
-    public SpaServiceController(SpaSvcService spaSvcService, WeightRangeService weightRangeService) {
+    public SpaServiceController(SpaSvcService spaSvcService, WeightRangeService weightRangeService, JobScheduler jobScheduler) {
         this.spaSvcService = spaSvcService;
         this.weightRangeService = weightRangeService;
     }

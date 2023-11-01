@@ -1,5 +1,8 @@
-package com.paws.security;
+package com.paws.configurations;
 
+import com.paws.security.CustomerUserDetailsServiceImpl;
+import com.paws.security.EmployeeUserDetailsServiceImpl;
+import com.paws.security.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,16 +20,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @EnableWebSecurity
 @Configuration
-public class SecurityConfig {
+public class SecurityConfiguration {
     private final JwtFilter jwtFilter;
-    private final CustomerUserDetailsService customerUserDetailsService;
-    private final EmployeeUserDetailsService employeeUserDetailsService;
+    private final CustomerUserDetailsServiceImpl customerUserDetailsServiceImpl;
+    private final EmployeeUserDetailsServiceImpl employeeUserDetailsServiceImpl;
 
     @Autowired
-    public SecurityConfig(JwtFilter jwtFilter, CustomerUserDetailsService customerUserDetailsService, EmployeeUserDetailsService employeeUserDetailsService) {
+    public SecurityConfiguration(JwtFilter jwtFilter, CustomerUserDetailsServiceImpl customerUserDetailsServiceImpl, EmployeeUserDetailsServiceImpl employeeUserDetailsServiceImpl) {
         this.jwtFilter = jwtFilter;
-        this.customerUserDetailsService = customerUserDetailsService;
-        this.employeeUserDetailsService = employeeUserDetailsService;
+        this.customerUserDetailsServiceImpl = customerUserDetailsServiceImpl;
+        this.employeeUserDetailsServiceImpl = employeeUserDetailsServiceImpl;
     }
 
     @Bean
@@ -76,14 +79,14 @@ public class SecurityConfig {
 
     private DaoAuthenticationProvider customerAuthProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customerUserDetailsService);
+        authProvider.setUserDetailsService(customerUserDetailsServiceImpl);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
     private DaoAuthenticationProvider employeeAuthProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(employeeUserDetailsService);
+        authProvider.setUserDetailsService(employeeUserDetailsServiceImpl);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

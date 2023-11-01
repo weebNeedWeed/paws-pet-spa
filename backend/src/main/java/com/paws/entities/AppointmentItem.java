@@ -1,12 +1,18 @@
 package com.paws.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "appointment_items")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AppointmentItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

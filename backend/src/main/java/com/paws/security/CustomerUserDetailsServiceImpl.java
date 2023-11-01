@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 
 @Service
-public class CustomerUserDetailsService implements UserDetailsService {
+public class CustomerUserDetailsServiceImpl implements UserDetailsService {
     private final CustomerRepository customerRepository;
 
     @Autowired
-    public CustomerUserDetailsService(CustomerRepository customerRepository) {
+    public CustomerUserDetailsServiceImpl(CustomerRepository customerRepository) {
 
         this.customerRepository = customerRepository;
     }

@@ -1,12 +1,14 @@
 package com.paws.services.customers;
 
-import com.paws.exceptions.UsernameAlreadyExistsException;
+import com.paws.exceptions.*;
+import com.paws.services.customers.payloads.MakeAppointmentItemRequest;
 import com.paws.services.customers.payloads.CustomerAuthenticationResult;
 import com.paws.entities.common.enums.AppointmentLocation;
 import com.paws.entities.common.enums.Gender;
 import com.paws.entities.Appointment;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface CustomerService {
     CustomerAuthenticationResult login(String username,
@@ -20,13 +22,13 @@ public interface CustomerService {
                                           String phoneNumber,
                                           Gender gender) throws UsernameAlreadyExistsException;
 
-    Appointment makeAppointment(long customerId,
+    void makeAppointment(long customerId,
                                 AppointmentLocation location,
                                 LocalDateTime time,
                                 String note,
-                                int numPets);
+                                List<MakeAppointmentItemRequest> appointmentItems) throws CustomerNotFoundException, InvalidAppointmentTimeException, PetTypeNotFoundException, SpaServiceNotFoundException;
 
-    void cancelAppointment(long customerId, long appointmentId);
+    void cancelAppointment(long customerId, long appointmentId) throws CustomerNotFoundException, AppointmentNotFoundException;
 
     void updateProfile(long customerId,
                        String email,

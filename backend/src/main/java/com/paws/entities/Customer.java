@@ -15,7 +15,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,4 +44,9 @@ public class Customer {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY, mappedBy = "customer")
     private List<Appointment> appointments = new ArrayList<>();
+
+    public void addAppointment(Appointment appointment) {
+        appointments.add(appointment);
+        appointment.setCustomer(this);
+    }
 }

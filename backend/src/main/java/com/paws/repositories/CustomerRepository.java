@@ -13,4 +13,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("select case when count(1) = 1 then true else false end from Customer c where c.username = :username")
     boolean existsCustomerWithUsername(String username);
+
+    @Query("select c from Customer c where c.id = :id")
+    Customer findById(long id);
 }

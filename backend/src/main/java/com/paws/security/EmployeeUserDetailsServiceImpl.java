@@ -14,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class EmployeeUserDetailsService implements UserDetailsService {
+public class EmployeeUserDetailsServiceImpl implements UserDetailsService {
     private final EmployeeRepository employeeRepository;
 
     @Autowired
-    public EmployeeUserDetailsService(EmployeeRepository employeeRepository) {
+    public EmployeeUserDetailsServiceImpl(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
 

@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class SpaServiceDetail {
     @EmbeddedId
     private SpaServiceDetailId spaServiceDetailId;

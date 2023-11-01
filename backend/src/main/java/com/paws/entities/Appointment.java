@@ -5,6 +5,9 @@ import com.paws.entities.common.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,6 +17,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "appoinments")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +32,6 @@ public class Appointment {
     private LocalDateTime appointmentTime;
 
     private String note;
-
-    @Min(1)
-    @Max(2)
-    @Column(nullable = false)
-    private int numPets;
 
     @Column(nullable = false)
     private AppointmentStatus status;
@@ -47,4 +48,9 @@ public class Appointment {
     @OneToMany(cascade = CascadeType.ALL,
             mappedBy = "appointment", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<AppointmentItem> appointmentItems = new ArrayList<>();
+
+    public void addItem(AppointmentItem item) {
+        appointmentItems.add(item);
+        item.setAppointment(this);
+    }
 }

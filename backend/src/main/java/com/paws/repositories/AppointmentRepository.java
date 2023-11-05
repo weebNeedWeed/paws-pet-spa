@@ -9,4 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     @Query("select a from Appointment a where a.id = :id")
     Appointment findById(long id);
+
+    @Query("select a from Appointment a where a.id = :appointmentId and a.customer.id = :customerId")
+    Appointment findByAppointmentIdAndCustomerId(long appointmentId, long customerId);
 }

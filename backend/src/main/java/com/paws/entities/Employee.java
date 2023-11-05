@@ -2,21 +2,21 @@ package com.paws.entities;
 
 import com.paws.entities.common.enums.Gender;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "employees")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Employee {
@@ -61,11 +61,10 @@ public class Employee {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
-    @JoinTable(name = "employee_appointment_item",
-            joinColumns = {@JoinColumn(name = "employee_id")},
-            inverseJoinColumns = {@JoinColumn(name = "appointment_item_id")})
-    private Set<AppointmentItem> appointmentItems = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY,
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            mappedBy = "employee")
+    private List<AppointmentItem> appointmentItems = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "employees")
     private Set<Role> roles = new HashSet<>();

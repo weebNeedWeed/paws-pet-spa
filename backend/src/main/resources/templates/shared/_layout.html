@@ -52,6 +52,12 @@
                         <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
                         Dịch vụ Spa
                     </a>
+
+                    <a class="nav-link" th:href="@{/appointments}">
+                        <div class="sb-nav-link-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                        Cuộc hẹn
+                    </a>
+
                     <div class="sb-sidenav-menu-heading">Interface</div>
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts"
                        aria-expanded="false" aria-controls="collapseLayouts">
@@ -147,6 +153,7 @@
 <script th:src="@{/js/scripts.js}"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
         crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
 <script layout:fragment="scripts"></script>
 </body>
 </html>

@@ -16,4 +16,7 @@ public interface SpaServiceDetailRepository extends JpaRepository<SpaServiceDeta
     @Transactional
     @Query("delete from SpaServiceDetail ssd where ssd.spaServiceDetailId.spaServiceId = :serviceId and ssd.spaServiceDetailId.petWeightRangeId.minWeight = :minWeight and ssd.spaServiceDetailId.petWeightRangeId.maxWeight = :maxWeight")
     void deleteSpaServiceDetail(long serviceId, BigDecimal minWeight, BigDecimal maxWeight);
+
+    @Query("select ssd from SpaServiceDetail ssd where ssd.spaServiceDetailId.spaServiceId = :serviceId and ssd.spaServiceDetailId.petWeightRangeId.minWeight = :minWeight and ssd.spaServiceDetailId.petWeightRangeId.maxWeight = :maxWeight")
+    SpaServiceDetail findByServiceIdAndWeightRange(long serviceId, BigDecimal minWeight, BigDecimal maxWeight);
 }

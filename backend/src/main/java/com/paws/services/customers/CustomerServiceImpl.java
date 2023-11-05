@@ -154,13 +154,14 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
+    @Transactional
     public void cancelAppointment(long customerId, long appointmentId) throws CustomerNotFoundException, AppointmentNotFoundException {
         Customer customer = customerRepository.findById(customerId);
         if(customer == null) {
             throw new CustomerNotFoundException();
         }
 
-        Appointment appointment = appointmentRepository.findById(appointmentId);
+        Appointment appointment = appointmentRepository.findByAppointmentIdAndCustomerId(appointmentId, customerId);
         if(appointment == null) {
             throw new AppointmentNotFoundException();
         }

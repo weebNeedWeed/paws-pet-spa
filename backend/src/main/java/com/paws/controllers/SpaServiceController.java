@@ -12,7 +12,6 @@ import com.paws.models.spaservices.CreateSpaServiceRequest;
 import com.paws.services.weightranges.WeightRangeService;
 import com.paws.services.weightranges.payloads.WeightRangeDto;
 import jakarta.validation.Valid;
-import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,7 +29,7 @@ public class SpaServiceController {
     private final SpaSvcService spaSvcService;
     private final WeightRangeService weightRangeService;
 
-    public SpaServiceController(SpaSvcService spaSvcService, WeightRangeService weightRangeService, JobScheduler jobScheduler) {
+    public SpaServiceController(SpaSvcService spaSvcService, WeightRangeService weightRangeService) {
         this.spaSvcService = spaSvcService;
         this.weightRangeService = weightRangeService;
     }

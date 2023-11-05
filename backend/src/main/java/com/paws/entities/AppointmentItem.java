@@ -1,16 +1,15 @@
 package com.paws.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "appointment_items")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppointmentItem {
@@ -34,6 +33,6 @@ public class AppointmentItem {
             inverseJoinColumns = {@JoinColumn(name = "spa_service_id")})
     private Set<SpaService> spaServices = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "appointmentItems")
-    private Set<Employee> employees = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    private Employee employee;
 }

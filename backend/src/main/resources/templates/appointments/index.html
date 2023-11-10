@@ -45,7 +45,11 @@
                     <th th:text="${appointment.status}"></th>
                     <th th:text="${appointment.appointmentTime}"></th>
                     <th th:text="${appointment.createdAt}"></th>
-                    <th></th>
+                    <th>
+                        <a th:href="@{/appointments/{appointmentId}/details(appointmentId=${appointment.id})}" title="Xem chi tiết" class="btn btn-primary text-white">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                    </th>
                 </tr>
                 </tbody>
             </table>
@@ -53,26 +57,26 @@
 
         <div class="card-footer">
             <ul class="pagination justify-content-center mb-0">
-                <li class="page-item">
-                    <a class="page-link" th:href="@{/appointments?pageIndex=0}">
+                <li class="page-item" th:if="${pagedResult.totalPages > 0}">
+                    <a class="page-link" th:href="@{/templates/appointment?pageIndex=0}">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
                 <li class="page-item" th:if="${(pagedResult.pageIndex - 1) >= 0}">
                     <a class="page-link"
                        th:text="${pagedResult.pageIndex - 1}"
-                       th:href="@{|/appointments?pageIndex=${pagedResult.pageIndex - 1}|}"></a>
+                       th:href="@{|/templates/appointment?pageIndex=${pagedResult.pageIndex - 1}|}"></a>
                 </li>
 
                 <li class="page-item disabled"><a class="page-link" th:text="${pagedResult.pageIndex}"></a></li>
 
                 <li class="page-item" th:if="${(pagedResult.pageIndex + 1) < pagedResult.totalPages}">
                     <a class="page-link" th:text="${pagedResult.pageIndex + 1}"
-                       th:href="@{|/appointments?pageIndex=${pagedResult.pageIndex + 1}|}"></a>
+                       th:href="@{|/templates/appointment?pageIndex=${pagedResult.pageIndex + 1}|}"></a>
                 </li>
 
-                <li class="page-item">
-                    <a class="page-link" th:href="@{|/appointments?pageIndex=${pagedResult.totalPages - 1}|}">
+                <li class="page-item" th:if="${pagedResult.totalPages > 0}">
+                    <a class="page-link" th:href="@{|/templates/appointment?pageIndex=${pagedResult.totalPages - 1}|}">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -82,7 +86,7 @@
 </div>
 
 <div layout:fragment="scripts">
-    <script th:src="@{/js/appointments/scripts.js}"></script>
+    <script th:src="@{/js/appointments/index.js}"></script>
 </div>
 </body>
 </html>

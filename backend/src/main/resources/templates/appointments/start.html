@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/shared/_layout}">
+<head>
+    <title>Danh sách cuộc hẹn</title>
+</head>
+<body>
+<div layout:fragment="body">
+    <h1 class="mt-4">Cuộc hẹn #[[${appointment.id}]]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/appointments}">Danh sách cuộc hẹn</a></li>
+        <li class="breadcrumb-item active" th:text="${'Cuộc hẹn #' + appointment.id}"></li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-body d-flex gap-2">
+            <button class="btn btn-success" id="start">Bắt đầu</button>
+
+            <button class="btn btn-danger">Kết thúc</button>
+        </div>
+    </div>
+    <div class="card mb-4 pb-xl-5">
+        <div class="card-header">
+            <i class="fa-solid fa-paw"></i>
+            Cuộc hẹn #[[${appointment.id}]]
+        </div>
+        <div class="card-body">
+            <table class="table table-striped-columns mb-3">
+                <tbody>
+                <tr>
+                    <td><b>Mã cuộc hẹn</b></td>
+                    <td class="w-75" th:text="${appointment.id}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Tên khách hàng:</b></td>
+                    <td class="w-75" th:text="${appointment.customerFullName}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Tên thú cưng:</b></td>
+                    <td class="w-75" th:text="${appointmentItem.petName}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Loại thú cưng:</b></td>
+                    <td th:text="${appointmentItem.petType}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <div id="measuring-weight-box" class="d-none">
+                <div class="d-flex flex-row w-100 gap-2">
+                    <span class="fw-bold">1. Đo trọng lượng thú cưng</span>
+                    <hr class="border border-dark flex-grow-1">
+                </div>
+                <form class="w-100 d-flex flex-row gap-2" id="measuring-weight-form">
+                    <input name="weight" type="number" class="form-control w-auto" placeholder="Nhập trọng lượng" min="0">
+                    <button type="submit" class="btn btn-primary">Gửi</button>
+                </form>
+            </div>
+
+            <div id="task" class="mt-4 d-none">
+                <div class="d-flex flex-row w-100 gap-2">
+                    <span class="fw-bold">2. Thực hiện spa</span>
+                    <hr class="border border-dark flex-grow-1">
+                </div>
+
+                <ul id="task-box">
+                    <li class="d-flex flex-row align-items-center gap-3">
+                        <div>Công việc: <span class="fw-bold">tắm</span></div>
+
+                        <button class="btn btn-outline-danger">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        const appointmentItemId = [[${appointmentItem.id}]];
+        const appointmentId = [[${appointment.id}]];
+        const isProcessing = [[${isProcessing}]];
+    </script>
+    <script th:src="@{/js/appointments/start.js}"></script>
+</div>
+</body>
+</html>

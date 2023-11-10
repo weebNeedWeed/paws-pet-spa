@@ -5,6 +5,8 @@ import com.paws.services.common.payloads.PagedResult;
 import com.paws.services.employees.payloads.AppointmentDto;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+
 public interface EmployeeService {
     void approveAppointment(long appointmentId) throws AppointmentNotFoundException, InvalidAppointmentStatusException, NoEmployeeAssignedException, CannotScheduleAppointmentException;
 
@@ -12,8 +14,14 @@ public interface EmployeeService {
                                           long appointmentItemId,
                                           long employeeId) throws AppointmentNotFoundException, AppointmentItemNotFoundException, EmployeeNotFoundException, InvalidAppointmentStatusException;
 
-    void startAppointment(long appointmentId) throws AppointmentNotFoundException, InvalidAppointmentStatusException;
+    void initDetailedAppointment(long appointmentItemId) throws AppointmentItemNotFoundException, InvalidAppointmentStatusException;
 
     PagedResult<AppointmentDto> getAllAppointments(Pageable pageable);
+
+    AppointmentDto getAppointmentDetails(long appointmentId) throws AppointmentNotFoundException;
+
+    void measurePetWeight(long appointmentItemId, double weight);
+
+    LocalDateTime calculateEndTimeForService(double weight, long serviceId);
 }
 

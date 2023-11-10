@@ -39,7 +39,7 @@ public class SpaServiceController {
         List<SpaSvcDto> spaServices = spaSvcService.getAllServices();
         model.addAttribute("spaServices", spaServices);
 
-        return "service/index";
+        return "services/index";
     }
 
     @GetMapping("/new")
@@ -47,13 +47,13 @@ public class SpaServiceController {
         CreateSpaServiceRequest request = new CreateSpaServiceRequest();
         model.addAttribute("createRequest", request);
 
-        return "service/create";
+        return "services/create";
     }
 
     @PostMapping("/new")
     public String create(@Valid @ModelAttribute("createRequest") CreateSpaServiceRequest request, BindingResult bindingResult, Model model) {
         if(bindingResult.hasErrors()) {
-            return "service/create";
+            return "services/create";
         }
 
         try {
@@ -66,7 +66,7 @@ public class SpaServiceController {
             model.addAttribute("error", "Tên dịch vụ bị trùng.");
             model.addAttribute("createRequest", request);
 
-            return "service/create";
+            return "services/create";
         }
 
         return "redirect:/services";
@@ -94,7 +94,7 @@ public class SpaServiceController {
         model.addAttribute("spaService", service);
         model.addAttribute("serviceDetails", serviceDetails);
 
-        return "service/details";
+        return "services/details";
     }
 
     @GetMapping("{serviceId}/edit")
@@ -107,7 +107,7 @@ public class SpaServiceController {
         EditSpaServiceRequest request = getEditSpaServiceRequest(service);
         model.addAttribute("editRequest", request);
 
-        return "service/edit";
+        return "services/edit";
     }
 
     @PostMapping("{serviceId}/edit/general")
@@ -119,7 +119,7 @@ public class SpaServiceController {
             request.setDetails(getListOfDetails(service));
             request.setId(service.getId());
 
-            return "service/edit";
+            return "services/edit";
         }
 
         try {

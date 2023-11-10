@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,4 +22,7 @@ public class AppointmentDto {
     private AppointmentStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String customerFullName;
+    private String note;
+    private List<AppointmentItemDto> appointmentItems;
 }

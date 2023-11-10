@@ -1,38 +1,32 @@
-package com.paws.entities;
+package com.paws.services.employees.payloads;
 
+import com.paws.entities.PetType;
+import com.paws.entities.SpaService;
 import com.paws.entities.common.enums.AppointmentItemStatus;
-import jakarta.persistence.*;
+import com.paws.services.spasvcs.payloads.SpaSvcDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Entity
-@Table(name = "detailed_appoinment_items")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DetailedAppointmentItem {
-    @Id
-    private Long id;
-
+public class AppointmentItemDto {
+    private long id;
+    private String petName;
+    private String petType;
     private AppointmentItemStatus status;
-
     private Double petWeight;
-
-    private LocalDateTime endingTime;
-
+    private LocalDateTime estimatedEndingTime;
     private LocalDateTime actualStartingTime;
-
+    private LocalDateTime endingTime;
     private LocalDateTime currentServiceEndingTime;
-
     private Integer doneServiceIndex;
 
-    @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_item_id")
-    private AppointmentItem appointmentItem;
+    List<SpaSvcDto> spaServices;
 }

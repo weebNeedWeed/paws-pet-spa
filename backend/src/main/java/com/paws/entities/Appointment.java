@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "appoinments")
+@Table(name = "appointments")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -40,12 +40,12 @@ public class Appointment {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToMany(cascade = CascadeType.ALL,
-            mappedBy = "appointment", orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            mappedBy = "appointment", fetch = FetchType.LAZY)
     private List<AppointmentItem> appointmentItems = new ArrayList<>();
 
     public void addItem(AppointmentItem item) {

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/shared/_layout}">
+<head>
+    <title>Danh sách cuộc hẹn</title>
+</head>
+<body>
+<div layout:fragment="body">
+    <h1 class="mt-4">Cuộc hẹn #[[${appointment.id}]]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/appointments}">Danh sách cuộc hẹn</a></li>
+        <li class="breadcrumb-item active" th:text="${'Cuộc hẹn #' + appointment.id}"></li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-body d-flex gap-2">
+            <a type="button" class="btn btn-danger" th:href="@{/appointments}">Trở về</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fa-solid fa-paw"></i>
+            Cuộc hẹn #[[${appointment.id}]]
+        </div>
+        <div class="card-body">
+            <table class="table table-striped-columns">
+                <tbody>
+                <tr>
+                    <td><b>Mã cuộc hẹn:</b></td>
+                    <td class="w-75" th:text="${appointment.id}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Trạng thái cuộc hẹn:</b></td>
+                    <td th:text="${appointment.status}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Địa điểm:</b></td>
+                    <td th:if="${appointment.location.name() == 'AT_SHOP'}">Tại chi nhánh</td>
+                    <td th:if="${appointment.location.name() == 'AT_HOME'}">Tại nhà</td>
+                </tr>
+
+                <tr>
+                    <td><b>Thời gian hẹn:</b></td>
+                    <td th:text="${#temporals.format(appointment.appointmentTime, 'dd-MM-yyyy HH:mm')}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Ghi chú:</b></td>
+                    <td th:text="${appointment.note}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Thời gian tạo:</b></td>
+                    <td th:text="${#temporals.format(appointment.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Thời gian cập nhật:</b></td>
+                    <td th:text="${#temporals.format(appointment.updatedAt, 'dd-MM-yyyy HH:mm')}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <h3 class="mt-4 mb-3">Chi tiết cuộc hẹn</h3>
+
+            <table th:each="item : ${appointment.appointmentItems}" class="table table-striped-columns mb-3">
+                <tbody>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button class="btn btn-success">Bắt đầu</button>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><b>Tên thú cưng:</b></td>
+                    <td class="w-75" th:text="${item.petName}"></td>
+                </tr>
+
+                <tr>
+                    <td><b>Loại thú cưng:</b></td>
+                    <td th:text="${item.petType}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+
+</div>
+</body>
+</html>

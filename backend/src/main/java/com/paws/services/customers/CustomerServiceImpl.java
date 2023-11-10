@@ -143,7 +143,8 @@ public class CustomerServiceImpl implements CustomerService{
             appointment.addItem(appointmentItem);
         }
 
-        appointment.setStatus(AppointmentStatus.PENDING);
+        // TODO: set it to pending later
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setNote(note);
         appointment.setAppointmentTime(time);
         appointment.setLocation(location);

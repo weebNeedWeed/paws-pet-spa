@@ -31,8 +31,8 @@ public class TestCmdLineRunner implements CommandLineRunner {
 //        request.setPetTypeId(1);
 //        List<Long> l = new ArrayList<>();
 //        l.add(1L);
+//        l.add(2L);
 //        request.setServiceIds(l);
-//        request.getServiceIds().add(1L);
 //        requests.add(request);
 //
 //        customerService.makeAppointment(

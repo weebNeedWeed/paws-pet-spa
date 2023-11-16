@@ -1,7 +1,11 @@
 package com.paws.jobs;
 
+import com.paws.controllers.WebSocketController;
+import com.paws.entities.AppointmentItem;
 import com.paws.entities.DetailedAppointmentItem;
+import com.paws.models.websockets.StartSpaServiceRequest;
 import com.paws.models.websockets.TimerResponse;
+import com.paws.models.websockets.WebSocketMessage;
 import com.paws.repositories.AppointmentItemRepository;
 import com.paws.repositories.DetailedAppointmentItemRepository;
 import com.paws.repositories.SpaServiceRepository;
@@ -22,13 +26,17 @@ public class CountdownTimerJob implements Job {
     private final AppointmentItemRepository appointmentItemRepository;
     private final DetailedAppointmentItemRepository detailedAppointmentItemRepository;
     private final SpaServiceRepository spaServiceRepository;
+    private final WebSocketController webSocketController;
+    private final Scheduler scheduler;
 
     @Autowired
-    public CountdownTimerJob(SimpMessagingTemplate messagingTemplate, AppointmentItemRepository appointmentItemRepository, DetailedAppointmentItemRepository detailedAppointmentItemRepository, SpaServiceRepository spaServiceRepository) {
+    public CountdownTimerJob(SimpMessagingTemplate messagingTemplate, AppointmentItemRepository appointmentItemRepository, DetailedAppointmentItemRepository detailedAppointmentItemRepository, SpaServiceRepository spaServiceRepository, WebSocketController webSocketController, Scheduler scheduler) {
         this.messagingTemplate = messagingTemplate;
         this.appointmentItemRepository = appointmentItemRepository;
         this.detailedAppointmentItemRepository = detailedAppointmentItemRepository;
         this.spaServiceRepository = spaServiceRepository;
+        this.webSocketController = webSocketController;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -49,9 +57,28 @@ public class CountdownTimerJob implements Job {
         }
 
         if(now.isAfter(endTime)) {
-            detailed.setDoneServiceIndex(currentDoingTaskIndex);
-            detailed.setCurrentServiceEndingTime(null);
-            detailedAppointmentItemRepository.save(detailed);
+            if(detailed.getDoneServiceIndex() == null || detailed.getDoneServiceIndex() != currentDoingTaskIndex) {
+                detailed.setDoneServiceIndex(currentDoingTaskIndex);
+                detailed.setCurrentServiceEndingTime(null);
+                detailedAppointmentItemRepository.save(detailed);
+
+                WebSocketMessage<Object> msg = new WebSocketMessage<>();
+                msg.setMessage("task_completed");
+
+                messagingTemplate.convertAndSendToUser(username, "/queue/appointments", msg);
+
+                try {
+                    AppointmentItem item = appointmentItemRepository.findById(appointmentItemId);
+                    StartSpaServiceRequest req = new StartSpaServiceRequest();
+                    req.setAppointmentId(item.getAppointment().getId());
+                    req.setTaskIndex(currentDoingTaskIndex + 1);
+                    req.setAppointmentItemId(appointmentItemId);
+
+                    messagingTemplate.convertAndSendToUser(username, "/queue/appointments", webSocketController.startSpaService(req, () -> username));
+                } catch (Exception ex) {
+                    throw new JobExecutionException(ex);
+                }
+            }
 
             return;
         }

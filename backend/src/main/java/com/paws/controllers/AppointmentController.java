@@ -73,4 +73,11 @@ public class AppointmentController {
 
         return "appointments/start";
     }
+
+    @GetMapping("{appointmentId}/{appointmentItemId}/assign-employee")
+    public String assignEmployee(@PathVariable("appointmentId") long appointmentId,
+                                 @PathVariable("appointmentItemId") long appointmentItemId,
+                                 Model model) {
+        return "appointments/assignEmployee";
+    }
 }

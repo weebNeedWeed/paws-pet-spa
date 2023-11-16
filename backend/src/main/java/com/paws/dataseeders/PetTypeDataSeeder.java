@@ -19,11 +19,11 @@ public class PetTypeDataSeeder implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if(petTypeRepository.count() == 0) {
             PetType dog = new PetType();
-            dog.setName("Dog");
+            dog.setName("Chó");
             petTypeRepository.save(dog);
 
             PetType cat = new PetType();
-            cat.setName("Cat");
+            cat.setName("Mèo");
             petTypeRepository.save(cat);
         }
     }

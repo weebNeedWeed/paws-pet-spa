@@ -18,13 +18,13 @@
         <div class="card-body d-flex gap-2">
             <a type="button" class="btn btn-primary"
                th:href="@{/services/{serviceId}/edit(serviceId=${spaService.getId()})}">
-                <i class="fa-solid fa-pen"></i>
+                Sửa
             </a>
 
             <form method="POST" th:action="@{/services/delete}">
                 <input type="hidden" th:value="${spaService.getId()}" name="serviceId" />
                 <button class="btn btn-danger text-white" type="submit">
-                    <i class="fa-solid fa-trash"></i>
+                    Xoá
                 </button>
             </form>
 
@@ -96,7 +96,15 @@
 </div>
 
 <div layout:fragment="scripts">
+    <script th:if="${error != null}">
+        const errorMsg = "[[${error}]]";
 
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: errorMsg
+        });
+    </script>
 </div>
 </body>
 </html>

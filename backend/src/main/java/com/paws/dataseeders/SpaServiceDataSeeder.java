@@ -22,9 +22,15 @@ public class SpaServiceDataSeeder implements CommandLineRunner {
             service.setName("Tắm");
             service.setDescription("Dịch vụ tắm, sấy cho chó và mèo.");
             service.setDefaultPrice(BigDecimal.valueOf(150000));
-            service.setDefaultEstimatedCompletionMinutes(30);
-
+            service.setDefaultEstimatedCompletionMinutes(1);
             spaServiceRepository.save(service);
+
+            SpaService service2 = new SpaService();
+            service2.setName("Cạo lông");
+            service2.setDescription("Dịch vụ cạo lông, tạo kiểu cho chó và mèo.");
+            service2.setDefaultPrice(BigDecimal.valueOf(300000));
+            service2.setDefaultEstimatedCompletionMinutes(1);
+            spaServiceRepository.save(service2);
         }
     }
 }

@@ -1,38 +1,99 @@
+let currentTaskNum = 0;
+let overallInterval;
+let serviceInterval;
+
+function startOverallInterval() {
+    const startButton = document.getElementById("start");
+
+    overallInterval = setInterval(() => {
+        const data = startButton.dataset;
+        let secs = parseInt(data.secs, 10);
+        if(secs === -1) {
+            return;
+        }
+
+        startButton.innerText = convertSecondsToClock(secs);
+
+        startButton.dataset.secs = --secs;
+    }, 950);
+}
+
+function startServiceInterval() {
+    const taskCard = document.getElementById(`task-${currentTaskNum}`);
+    const cardFooter = taskCard.querySelector(".card-footer");
+
+    serviceInterval = setInterval(() => {
+        let secs = parseInt(cardFooter.dataset.secs, 10);
+        if(secs === -1) {
+            return;
+        }
+
+        cardFooter.innerText = convertSecondsToClock(secs);
+
+        cardFooter.dataset.secs = --secs;
+    }, 950);
+}
+
 function startMeasuringWeight() {
     const measuringWeightBox = document.getElementById("measuring-weight-box");
     measuringWeightBox.classList.remove("d-none");
     measuringWeightBox.classList.add("d-block");
 }
 
-function inProgressHandle(serviceName) {
-    const li = document.createElement("li");
-    li.classList.add("d-flex","flex-row", "align-items-center",  "gap-3");
+function inProgressHandle(service) {
+    currentTaskNum++;
+    const card = document.createElement("div");
+    card.classList.add("card", "text-center");
+    card.id = `task-${currentTaskNum}`;
 
-    const div = document.createElement("div");
-    const span = document.createElement("span");
-    span.innerText = serviceName;
-    span.classList.add("fw-bold");
+    const cardHeader = document.createElement("div");
+    cardHeader.classList.add("card-header", "fw-bold");
+    cardHeader.innerHTML = `#${currentTaskNum}. ${service.name} <span class="badge text-bg-danger">Chưa hoàn thành</span>`;
 
-    div.append("Công việc đang thực hiện: ");
-    div.append(span);
+    const cardBody = document.createElement("div");
+    cardBody.classList.add("card-body");
+    cardBody.innerHTML += `<h5 class="card-title">${service.name}</h5>`;
+    cardBody.innerHTML += `<p class="card-text">${service.description}</p>`;
+    cardBody.innerHTML += `<button class="btn btn-primary">Hướng dẫn</button>`;
 
-    const button = document.createElement("button");
-    button.innerHTML = '<i class="fa-solid fa-check"></i>';
-    button.classList.add("btn", "btn-outline-danger");
-
-    li.append(div, button);
+    const cardFooter = document.createElement("div");
+    cardFooter.classList.add("card-footer", "text-muted");
+    cardFooter.innerText = "00 : 00";
+    card.append(cardHeader, cardBody, cardFooter);
 
     const task = document.getElementById("task");
     task.classList.remove("d-none");
     task.classList.add("d-block");
 
-    document.getElementById("task-box").innerText = "";
-    document.getElementById("task-box").append(li);
+    document.getElementById("task-box").append(card);
+    document.getElementById("task-box").append(document.createElement("br"));
+
+    cardFooter.dataset.secs = 0;
+    startServiceInterval();
+}
+
+function taskCompletedHandler() {
+    const taskCard = document.getElementById(`task-${currentTaskNum}`);
+    const badge = taskCard.querySelector(".badge");
+    badge.classList.remove("text-bg-danger");
+    badge.classList.add("text-bg-success");
+    badge.innerText = "Đã hoàn thành";
+}
+
+function doneHandle() {
+    const button = document.getElementById("start");
+    button.innerText = "Đã hoàn thành";
 }
 
 function convertSecondsToClock(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds - (minutes * 60);
+    const minutes = Math.floor(seconds / 60).toLocaleString("en-US", {
+        minimumIntegerDigits: 2,
+        useGrouping: false
+    });
+    const secs = (seconds - (minutes * 60)).toLocaleString("en-US", {
+        minimumIntegerDigits: 2,
+        useGrouping: false
+    });
 
     return `${minutes} : ${secs}`;
 }
@@ -63,6 +124,17 @@ function initStompClient() {
 
                 case "in_progress": {
                     inProgressHandle(pl.payload);
+                    break;
+                }
+
+                case "task_completed": {
+                    taskCompletedHandler();
+                    break;
+                }
+
+                case "done": {
+                    doneHandle();
+                    client.deactivate();
                 }
             }
         });
@@ -70,11 +142,23 @@ function initStompClient() {
         client.subscribe("/user/queue/timers", (data) => {
             const message = JSON.parse(data.body);
             console.log(message);
-            const secondsTillEndAppointment = message.secondsTillEndAppointment;
-            const secondsTillEndService = message.secondsTillEndService;
+            const {secondsTillEndAppointment, secondsTillEndService} = message;
 
             const startButton = document.getElementById("start");
             startButton.dataset.secs = secondsTillEndAppointment;
+
+            if(typeof overallInterval !== "undefined") {
+                clearInterval(overallInterval);
+                startOverallInterval();
+            }
+
+            const cardFooter = document.querySelector(`#task-${currentTaskNum} .card-footer`);
+            cardFooter.dataset.secs = secondsTillEndService;
+
+            if(typeof serviceInterval !== "undefined") {
+                clearInterval(serviceInterval);
+                startServiceInterval();
+            }
         });
     };
 
@@ -95,17 +179,7 @@ window.addEventListener("DOMContentLoaded", () => {
         this.disabled = true;
         startButton.dataset.secs = 0;
 
-        setInterval(() => {
-            const data = startButton.dataset;
-            let secs = parseInt(data.secs, 10);
-            if(secs === 0) {
-                return;
-            }
-
-            startButton.dataset.secs = --secs;
-
-            startButton.innerText = convertSecondsToClock(secs);
-        }, 1000);
+        startOverallInterval();
     });
 
     if(isProcessing) {

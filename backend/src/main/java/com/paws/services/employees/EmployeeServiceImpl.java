@@ -16,16 +16,14 @@ import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
@@ -165,6 +163,7 @@ public class EmployeeServiceImpl implements EmployeeService{
                     appointmentDto.setCreatedAt(x.getCreatedAt());
                     appointmentDto.setUpdatedAt(x.getUpdatedAt());
                     appointmentDto.setStatus(x.getStatus());
+                    appointmentDto.setCustomerFullName(x.getCustomer().getFullName());
 
                     return appointmentDto;
                 }).toList();
@@ -175,7 +174,7 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public AppointmentDto getAppointmentDetails(long appointmentId) throws AppointmentNotFoundException {
         Appointment appointment = appointmentRepository.findById(appointmentId);
         if(appointment == null) {
@@ -196,7 +195,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 
         appointmentDto.setAppointmentItems(new ArrayList<>());
 
-        List<AppointmentItem> appointmentItems = appointment.getAppointmentItems().stream().sorted().toList();
+        List<AppointmentItem> appointmentItems = appointment.getAppointmentItems();
         for(AppointmentItem item : appointmentItems) {
             AppointmentItemDto itemDto = new AppointmentItemDto();
             itemDto.setId(item.getId());
@@ -209,9 +208,10 @@ public class EmployeeServiceImpl implements EmployeeService{
                         SpaSvcDto dto = new SpaSvcDto();
                         dto.setId(x.getId());
                         dto.setName(x.getName());
+                        dto.setDescription(x.getDescription());
 
                         return dto;
-                    }).toList();
+                    }).sorted(Comparator.comparing(SpaSvcDto::getId)).toList();
 
             itemDto.setSpaServices(spaSvcDtos);
 
@@ -223,6 +223,7 @@ public class EmployeeServiceImpl implements EmployeeService{
                 itemDto.setCurrentServiceEndingTime(detailedItem.getCurrentServiceEndingTime());
                 itemDto.setPetWeight(detailedItem.getPetWeight());
                 itemDto.setDoneServiceIndex(detailedItem.getDoneServiceIndex());
+                itemDto.setEndingTime(detailedItem.getEndingTime());
             }
 
             appointmentDto.getAppointmentItems().add(itemDto);
@@ -232,7 +233,7 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = {Exception.class})
     public void measurePetWeight(long appointmentItemId, double weight) {
         DetailedAppointmentItem detailedAppointmentItem = detailedAppointmentItemRepository.findById(appointmentItemId);
         AppointmentItem appointmentItem = appointmentItemRepository.findById(appointmentItemId);
@@ -249,7 +250,8 @@ public class EmployeeServiceImpl implements EmployeeService{
             sum += seconds;
         }
 
-        LocalDateTime appointmentEndTime = now.plusSeconds(sum).plusMinutes(15);
+        int complementMins = 0;
+        LocalDateTime appointmentEndTime = now.plusSeconds(sum).plusMinutes(complementMins);
 
         detailedAppointmentItem.setEndingTime(appointmentEndTime);
 
@@ -264,12 +266,15 @@ public class EmployeeServiceImpl implements EmployeeService{
 
         LocalDateTime now = LocalDateTime.now();
 
+        // TODO: change it later
+        float complementMins = 0;
+
         SpaService service = spaServiceRepository.getSpaServiceById(serviceId);
-        float mins = 10 + service.getDefaultEstimatedCompletionMinutes();
+        float mins = complementMins + service.getDefaultEstimatedCompletionMinutes();
 
         SpaServiceDetail serviceDetail = spaServiceDetailRepository.findByServiceIdAndWeightRange(serviceId, range.getId().getMinWeight(), range.getId().getMaxWeight());
         if(serviceDetail != null)
-            mins = 10 + serviceDetail.getEstimatedCompletionMinutes();// estimated time plus 15 complement minutes
+            mins = complementMins + serviceDetail.getEstimatedCompletionMinutes();// estimated time plus 15 complement minutes
 
         return now.plusMinutes((int)mins);
     }

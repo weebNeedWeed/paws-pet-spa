@@ -28,10 +28,10 @@
                 <thead>
                 <tr>
                     <th>Mã</th>
+                    <th>Tên khách hàng</th>
                     <th>Địa điểm</th>
                     <th>Trạng thái</th>
                     <th>Thời gian hẹn</th>
-                    <th>Thời điểm tạo</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -39,12 +39,12 @@
                 <tr th:each="appointment : ${pagedResult.data}">
                     <th th:text="${appointment.id}"></th>
 
-                    <th th:if="${appointment.location.name() == 'AT_HOME'}">Tại nhà</th>
-                    <th th:if="${appointment.location.name() == 'AT_SHOP'}">Tại chi nhánh</th>
+                    <th th:text="${appointment.customerFullName}"></th>
 
-                    <th th:text="${appointment.status}"></th>
-                    <th th:text="${appointment.appointmentTime}"></th>
-                    <th th:text="${appointment.createdAt}"></th>
+                    <th th:text="${appointment.location.getValue()}"></th>
+
+                    <th th:text="${appointment.status.getValue()}"></th>
+                    <th th:text="${#temporals.format(appointment.appointmentTime, 'dd-MM-yyyy HH:mm')}"></th>
                     <th>
                         <a th:href="@{/appointments/{appointmentId}/details(appointmentId=${appointment.id})}" title="Xem chi tiết" class="btn btn-primary text-white">
                             <i class="fa-solid fa-eye"></i>
@@ -57,26 +57,26 @@
 
         <div class="card-footer">
             <ul class="pagination justify-content-center mb-0">
-                <li class="page-item" th:if="${pagedResult.totalPages > 0}">
-                    <a class="page-link" th:href="@{/templates/appointment?pageIndex=0}">
+                <li class="page-item" th:if="${pagedResult.isEmpty()}">
+                    <a class="page-link" th:href="@{/appointments?pageIndex=0}">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
-                <li class="page-item" th:if="${(pagedResult.pageIndex - 1) >= 0}">
+                <li class="page-item" th:if="${pagedResult.hasPrevious()}">
                     <a class="page-link"
                        th:text="${pagedResult.pageIndex - 1}"
-                       th:href="@{|/templates/appointment?pageIndex=${pagedResult.pageIndex - 1}|}"></a>
+                       th:href="@{|/appointments?pageIndex=${pagedResult.pageIndex - 1}|}"></a>
                 </li>
 
                 <li class="page-item disabled"><a class="page-link" th:text="${pagedResult.pageIndex}"></a></li>
 
-                <li class="page-item" th:if="${(pagedResult.pageIndex + 1) < pagedResult.totalPages}">
+                <li class="page-item" th:if="${pagedResult.hasNext()}">
                     <a class="page-link" th:text="${pagedResult.pageIndex + 1}"
-                       th:href="@{|/templates/appointment?pageIndex=${pagedResult.pageIndex + 1}|}"></a>
+                       th:href="@{|/appointments?pageIndex=${pagedResult.pageIndex + 1}|}"></a>
                 </li>
 
-                <li class="page-item" th:if="${pagedResult.totalPages > 0}">
-                    <a class="page-link" th:href="@{|/templates/appointment?pageIndex=${pagedResult.totalPages - 1}|}">
+                <li class="page-item" th:if="${pagedResult.isEmpty()}">
+                    <a class="page-link" th:href="@{|/appointments?pageIndex=${pagedResult.totalPages - 1}|}">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>

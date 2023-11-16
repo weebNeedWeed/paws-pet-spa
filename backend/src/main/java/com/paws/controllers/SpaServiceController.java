@@ -73,10 +73,13 @@ public class SpaServiceController {
     }
 
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("serviceId") long serviceId) {
+    public String delete(@ModelAttribute("serviceId") long serviceId, RedirectAttributes redirectAttributes) {
         try {
             spaSvcService.deleteService(serviceId);
         } catch(SpaServiceNotFoundException ex) {
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xoá dịch vụ do đã tồn tại cuộc hẹn có dịch vụ này.");
+            return "redirect:/services/" + serviceId + "/details";
         }
 
         return "redirect:/services";

@@ -16,4 +16,19 @@ public class PagedResult <T>{
     private int pageIndex;
     private int pageSize;
     private int totalPages;
+
+    public boolean isEmpty() {
+        return totalPages > 0;
+    }
+
+    public boolean hasPrevious() {
+        return (pageIndex - 1) >= 0;
+    }
+
+    public boolean hasNext() {
+        return (pageIndex + 1) < totalPages;
+    }
+
+
+
 }

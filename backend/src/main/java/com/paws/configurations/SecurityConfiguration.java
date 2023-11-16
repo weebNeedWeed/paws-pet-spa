@@ -12,11 +12,13 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
 @Configuration
@@ -56,17 +58,23 @@ public class SecurityConfiguration {
     public SecurityFilterChain dashboardFilterChain(HttpSecurity http) throws  Exception {
         http
                 .securityMatcher("/**")
-                .csrf(x -> x.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(employeeAuthProvider())
                 .authorizeHttpRequests(x ->
                         x.requestMatchers("/css/**", "/js/**", "/assets/**").permitAll()
                         .requestMatchers("/error", "/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(x -> x
-                        .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/", true)
+                        .usernameParameter("username")
+                        .passwordParameter("password")
                         .loginPage("/auth/login")
-                        .failureUrl("/auth/login?error")
+                        .defaultSuccessUrl("/", true).permitAll()
+                        .failureUrl("/auth/login?error=true").permitAll())
+                .logout(x -> x
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
+                        .logoutSuccessUrl("/auth/login")
                         .permitAll());
 
         return http.build();

@@ -2,7 +2,8 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/shared/_layout}">
+      layout:decorate="~{/shared/_layout}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <title>Danh sách cuộc hẹn</title>
 </head>
@@ -16,7 +17,10 @@
     </ol>
     <div class="card mb-4">
         <div class="card-body d-flex gap-2">
-            <a type="button" class="btn btn-info">Phân công</a>
+            <form sec:authorize="hasAuthority('COORDINATOR')" method="POST" th:action="@{/appointments/{appointmentId}/approve(appointmentId=${appointment.id})}">
+                <button th:disabled="${!canApprove}" class="btn btn-warning">Xác nhận</button>
+            </form>
+
             <a type="button" class="btn btn-danger" th:href="@{/appointments}">Trở về</a>
         </div>
     </div>
@@ -79,7 +83,11 @@
                 <tr>
                     <td></td>
                     <td>
-                        <a class="btn btn-success"
+                        <a sec:authorize="hasAuthority('COORDINATOR')" type="button" th:class="${'btn btn-warning ' + (canAssignEmp ? '' : 'disabled')}" th:href="@{/appointments/{appointmentId}/{appointmentItemId}/assign-employee(appointmentId=${appointment.id},appointmentItemId=${item.id})}">Phân công</a>
+
+                        <a sec:authorize="hasAuthority('NORMAL_EMPLOYEE')"
+                           th:if="${item.employee != null && item.employee.username == #authentication.getName()}"
+                           th:class="${'btn btn-success ' + (canAssignEmp ? 'disabled' : '')}"
                            th:href="@{/appointments/{appointmentId}/{appointmentItemId}/start(appointmentId=${appointment.id},appointmentItemId=${item.id})}">Bắt đầu</a>
                     </td>
                 </tr>
@@ -98,6 +106,14 @@
                     <td><b>Công việc cần thực hiện:</b></td>
                     <td>
                         <span class="badge text-bg-info me-2" th:each="service: ${item.spaServices}" th:text="${service.name}">
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><b>Nhân viên được phân công:</b></td>
+                    <td>
+                        <span th:if="${item.employee != null}" th:text="${item.employee.id + ' - ' + item.employee.fullName}">
                         </span>
                     </td>
                 </tr>

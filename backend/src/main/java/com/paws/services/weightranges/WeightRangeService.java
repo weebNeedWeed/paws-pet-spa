@@ -1,6 +1,6 @@
 package com.paws.services.weightranges;
 
-import com.paws.services.weightranges.payloads.WeightRangeDto;
+import com.paws.payloads.response.WeightRangeDto;
 
 import java.util.List;
 

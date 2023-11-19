@@ -1,6 +1,6 @@
 package com.paws.models.spaservices;
 
-import com.paws.services.spasvcs.payloads.ServiceDetailDto;
+import com.paws.payloads.response.ServiceDetailDto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

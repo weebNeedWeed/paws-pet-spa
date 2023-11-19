@@ -2,7 +2,8 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/shared/_layout}">
+      layout:decorate="~{/shared/_layout}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <title>Dịch vụ Spa</title>
 </head>
@@ -16,12 +17,12 @@
     </ol>
     <div class="card mb-4">
         <div class="card-body d-flex gap-2">
-            <a type="button" class="btn btn-primary"
+            <a sec:authorize="hasAuthority('ADMINISTRATOR')" type="button" class="btn btn-primary"
                th:href="@{/services/{serviceId}/edit(serviceId=${spaService.getId()})}">
                 Sửa
             </a>
 
-            <form method="POST" th:action="@{/services/delete}">
+            <form sec:authorize="hasAuthority('ADMINISTRATOR')" method="POST" th:action="@{/services/delete}">
                 <input type="hidden" th:value="${spaService.getId()}" name="serviceId" />
                 <button class="btn btn-danger text-white" type="submit">
                     Xoá

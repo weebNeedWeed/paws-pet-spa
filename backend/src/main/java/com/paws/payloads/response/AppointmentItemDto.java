@@ -1,9 +1,6 @@
-package com.paws.services.employees.payloads;
+package com.paws.payloads.response;
 
-import com.paws.entities.PetType;
-import com.paws.entities.SpaService;
 import com.paws.entities.common.enums.AppointmentItemStatus;
-import com.paws.services.spasvcs.payloads.SpaSvcDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +24,7 @@ public class AppointmentItemDto {
     private LocalDateTime endingTime;
     private LocalDateTime currentServiceEndingTime;
     private Integer doneServiceIndex;
+    private EmployeeDto employee;
 
     List<SpaSvcDto> spaServices;
 }

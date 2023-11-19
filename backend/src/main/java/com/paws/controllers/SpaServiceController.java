@@ -6,12 +6,13 @@ import com.paws.exceptions.SpaServiceNotFoundException;
 import com.paws.models.spaservices.EditSpaServiceRequest;
 import com.paws.models.spaservices.ServiceDetailByWeightRange;
 import com.paws.services.spasvcs.SpaSvcService;
-import com.paws.services.spasvcs.payloads.ServiceDetailDto;
-import com.paws.services.spasvcs.payloads.SpaSvcDto;
+import com.paws.payloads.response.ServiceDetailDto;
+import com.paws.payloads.response.SpaSvcDto;
 import com.paws.models.spaservices.CreateSpaServiceRequest;
 import com.paws.services.weightranges.WeightRangeService;
-import com.paws.services.weightranges.payloads.WeightRangeDto;
+import com.paws.payloads.response.WeightRangeDto;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,12 +20,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping("/services")
+@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 public class SpaServiceController {
     private final SpaSvcService spaSvcService;
     private final WeightRangeService weightRangeService;
@@ -35,8 +36,9 @@ public class SpaServiceController {
     }
 
     @GetMapping("")
+    @PreAuthorize("isAuthenticated()")
     public String index(Model model) {
-        List<SpaSvcDto> spaServices = spaSvcService.getAllServices();
+        List<SpaSvcDto> spaServices = spaSvcService.getAll();
         model.addAttribute("spaServices", spaServices);
 
         return "services/index";
@@ -57,7 +59,7 @@ public class SpaServiceController {
         }
 
         try {
-            spaSvcService.addService(
+            spaSvcService.addNew(
                     request.getName(),
                     request.getDescription(),
                     request.getDefaultPrice(),
@@ -73,10 +75,11 @@ public class SpaServiceController {
     }
 
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("serviceId") long serviceId, RedirectAttributes redirectAttributes) {
+    public String delete(@ModelAttribute("serviceId") long serviceId, RedirectAttributes redirectAttributes) throws SpaServiceNotFoundException {
         try {
-            spaSvcService.deleteService(serviceId);
+            spaSvcService.delete(serviceId);
         } catch(SpaServiceNotFoundException ex) {
+            throw ex;
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", "Không thể xoá dịch vụ do đã tồn tại cuộc hẹn có dịch vụ này.");
             return "redirect:/services/" + serviceId + "/details";
@@ -86,10 +89,11 @@ public class SpaServiceController {
     }
 
     @GetMapping("{serviceId}/details")
+    @PreAuthorize("isAuthenticated()")
     public String details(@PathVariable("serviceId") long serviceId, Model model) throws SpaServiceNotFoundException {
-        SpaSvcDto service = spaSvcService.getServiceById(serviceId);
+        SpaSvcDto service = spaSvcService.getById(serviceId);
         if(service == null) {
-            return "redirect:/services";
+            throw new SpaServiceNotFoundException();
         }
 
         List<ServiceDetailDto> serviceDetails = spaSvcService.getAllDetails(serviceId);
@@ -102,9 +106,9 @@ public class SpaServiceController {
 
     @GetMapping("{serviceId}/edit")
     public String edit(@PathVariable("serviceId") long serviceId, Model model) throws SpaServiceNotFoundException {
-        SpaSvcDto service = spaSvcService.getServiceById(serviceId);
+        SpaSvcDto service = spaSvcService.getById(serviceId);
         if(service == null) {
-            return "redirect:/services";
+            throw new SpaServiceNotFoundException();
         }
 
         EditSpaServiceRequest request = getEditSpaServiceRequest(service);
@@ -118,7 +122,7 @@ public class SpaServiceController {
                               @Valid @ModelAttribute("editRequest") EditSpaServiceRequest request,
                               BindingResult bindingResult,Model model, RedirectAttributes redirectAttributes) throws SpaServiceNotFoundException {
         if(bindingResult.hasErrors()) {
-            SpaSvcDto service = spaSvcService.getServiceById(serviceId);
+            SpaSvcDto service = spaSvcService.getById(serviceId);
             request.setDetails(getListOfDetails(service));
             request.setId(service.getId());
 
@@ -126,13 +130,11 @@ public class SpaServiceController {
         }
 
         try {
-            spaSvcService.updateService(serviceId,
+            spaSvcService.update(serviceId,
                     request.getName(),
                     request.getDescription(),
                     request.getDefaultPrice(),
                     request.getDefaultEstimatedCompletionMinutes());
-        } catch (SpaServiceNotFoundException ex) {
-            return "redirect:/services";
         } catch (SpaServiceNameAlreadyExistsException ex) {
             redirectAttributes.addFlashAttribute("error", "Tên dịch vụ đã tồn tại.");
         }
@@ -142,32 +144,24 @@ public class SpaServiceController {
 
     @PostMapping("{serviceId}/edit/detail")
     public String editDetail(@PathVariable("serviceId") long serviceId,
-                             @Valid ServiceDetailByWeightRange detail, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+                             @Valid ServiceDetailByWeightRange detail, BindingResult bindingResult, RedirectAttributes redirectAttributes) throws SpaServiceNotFoundException, InvalidWeightRangeException {
         if(bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
             return "redirect:/services/" + serviceId + "/edit";
         }
 
-        try {
-            spaSvcService.updateDetailByWeightRange(serviceId,
-                    detail.getMinWeight(),
-                    detail.getMaxWeight(),
-                    detail.getPrice(),
-                    detail.getEstimatedCompletionMinutes());
-        } catch (SpaServiceNotFoundException | InvalidWeightRangeException ex) {
-            return "redirect:/services";
-        }
+        spaSvcService.updateDetailByWeightRange(serviceId,
+                detail.getMinWeight(),
+                detail.getMaxWeight(),
+                detail.getPrice(),
+                detail.getEstimatedCompletionMinutes());
 
         return "redirect:/services/" + serviceId + "/edit";
     }
 
     @PostMapping("{serviceId}/delete/detail")
-    public String deleteDetail(@PathVariable("serviceId") long serviceId, BigDecimal minWeight, BigDecimal maxWeight) {
-        try {
-            spaSvcService.deleteDetail(serviceId, minWeight, maxWeight);
-        } catch (SpaServiceNotFoundException ex) {
-            return "redirect:/services";
-        }
+    public String deleteDetail(@PathVariable("serviceId") long serviceId, BigDecimal minWeight, BigDecimal maxWeight) throws SpaServiceNotFoundException {
+        spaSvcService.deleteDetail(serviceId, minWeight, maxWeight);
 
         return "redirect:/services/" + serviceId + "/edit";
     }

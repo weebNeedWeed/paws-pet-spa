@@ -3,23 +3,23 @@ package com.paws.services.spasvcs;
 import com.paws.exceptions.InvalidWeightRangeException;
 import com.paws.exceptions.SpaServiceNameAlreadyExistsException;
 import com.paws.exceptions.SpaServiceNotFoundException;
-import com.paws.services.spasvcs.payloads.ServiceDetailDto;
-import com.paws.services.spasvcs.payloads.SpaSvcDto;
+import com.paws.payloads.response.ServiceDetailDto;
+import com.paws.payloads.response.SpaSvcDto;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface SpaSvcService {
-    SpaSvcDto addService(String name,
-                         String description,
-                         BigDecimal defaultPrice,
-                         float defaultEstimatedCompletionMinutes) throws SpaServiceNameAlreadyExistsException;
+    void addNew(String name,
+                 String description,
+                 BigDecimal defaultPrice,
+                 float defaultEstimatedCompletionMinutes) throws SpaServiceNameAlreadyExistsException;
 
-    void deleteService(long serviceId) throws SpaServiceNotFoundException;
+    void delete(long serviceId) throws SpaServiceNotFoundException;
 
-    List<SpaSvcDto> getAllServices();
+    List<SpaSvcDto> getAll();
 
-    SpaSvcDto getServiceById(long serviceId);
+    SpaSvcDto getById(long serviceId);
 
     void updateDetailByWeightRange(
             long serviceId,
@@ -28,7 +28,7 @@ public interface SpaSvcService {
             BigDecimal price,
             float estimatedCompletionMinutes) throws SpaServiceNotFoundException, InvalidWeightRangeException;
 
-    void updateService(
+    void update(
             long serviceId,
             String name,
             String description,

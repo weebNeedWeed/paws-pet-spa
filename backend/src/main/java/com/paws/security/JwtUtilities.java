@@ -1,4 +1,4 @@
-package com.paws.services.jwts;
+package com.paws.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -14,14 +14,13 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
-public class JwtServiceImpl implements JwtService{
+public class JwtUtilities {
     @Value("${jwt.secret}")
     private String secret;
 
     @Value("${jwt.expiry-days}")
     private int expiryDays;
 
-    @Override
     public String generateJwtToken(Customer customer) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         int daysInMilis = expiryDays * 24 * 60 * 60 * 1000;
@@ -44,7 +43,6 @@ public class JwtServiceImpl implements JwtService{
         return jwtToken;
     }
 
-    @Override
     public boolean validateJwtToken(String jwtToken) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         try {
@@ -59,7 +57,6 @@ public class JwtServiceImpl implements JwtService{
         }
     }
 
-    @Override
     public String extractUserNameFromJwtToken(String jwtToken) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         DecodedJWT jwt = JWT.require(algorithm)

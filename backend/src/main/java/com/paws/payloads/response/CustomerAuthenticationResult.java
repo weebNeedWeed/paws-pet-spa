@@ -1,4 +1,4 @@
-package com.paws.services.customers.payloads;
+package com.paws.payloads.response;
 
 public class CustomerAuthenticationResult {
     private CustomerDto customerDto;

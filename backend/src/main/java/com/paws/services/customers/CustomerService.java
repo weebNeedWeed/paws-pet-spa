@@ -1,11 +1,10 @@
 package com.paws.services.customers;
 
 import com.paws.exceptions.*;
-import com.paws.services.customers.payloads.MakeAppointmentItemRequest;
-import com.paws.services.customers.payloads.CustomerAuthenticationResult;
+import com.paws.payloads.request.MakeAppointmentItemRequest;
+import com.paws.payloads.response.CustomerAuthenticationResult;
 import com.paws.entities.common.enums.AppointmentLocation;
 import com.paws.entities.common.enums.Gender;
-import com.paws.entities.Appointment;
 
 import java.time.LocalDateTime;
 import java.util.List;

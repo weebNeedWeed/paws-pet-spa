@@ -12,115 +12,25 @@
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
         <li class="breadcrumb-item"><a th:href="@{/appointments}">Danh sách cuộc hẹn</a></li>
-        <li class="breadcrumb-item active" th:text="${'Cuộc hẹn #' + appointment.id}"></li>
+        <li class="breadcrumb-item">
+            <a th:href="@{/appointments/{appointmentId}/details(appointmentId=${appointment.id})}" th:text="${'Cuộc hẹn #' + appointment.id}"></a>
+        </li>
+        <li class="breadcrumb-item active">Phân công</li>
     </ol>
     <div class="card mb-4">
         <div class="card-body d-flex gap-2">
-            <a type="button" class="btn btn-info">Phân công</a>
-            <a type="button" class="btn btn-danger" th:href="@{/appointments}">Trở về</a>
+            <a type="button" class="btn btn-danger" th:href="@{/appointments/{appointmentId}/details(appointmentId=${appointment.id})}">Trở về</a>
         </div>
     </div>
     <div class="card mb-4">
-        <div class="card-header">
-            <i class="fa-solid fa-paw"></i>
-            Cuộc hẹn #[[${appointment.id}]]
-        </div>
         <div class="card-body">
-            <table class="table table-striped-columns">
-                <tbody>
-                <tr>
-                    <td><b>Mã cuộc hẹn:</b></td>
-                    <td class="w-75" th:text="${appointment.id}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Tên khách hàng:</b></td>
-                    <td th:text="${appointment.customerFullName}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Trạng thái cuộc hẹn:</b></td>
-                    <td th:text="${appointment.status.getValue()}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Địa điểm:</b></td>
-                    <td th:text="${appointment.location.getValue()}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Thời gian hẹn:</b></td>
-                    <td th:text="${#temporals.format(appointment.appointmentTime, 'dd-MM-yyyy HH:mm')}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Ghi chú:</b></td>
-                    <td th:text="${appointment.note}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Thời gian tạo:</b></td>
-                    <td th:text="${#temporals.format(appointment.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Thời gian cập nhật:</b></td>
-                    <td th:text="${#temporals.format(appointment.updatedAt, 'dd-MM-yyyy HH:mm')}"></td>
-                </tr>
-                </tbody>
-            </table>
-
-            <hr>
-
-            <h3 class="mt-4 mb-3">Chi tiết cuộc hẹn</h3>
-
-            <table th:each="item : ${appointment.appointmentItems}" class="table table-striped-columns mb-3">
-                <tbody>
-                <tr>
-                    <td></td>
-                    <td>
-                        <a class="btn btn-success"
-                           th:href="@{/appointments/{appointmentId}/{appointmentItemId}/start(appointmentId=${appointment.id},appointmentItemId=${item.id})}">Bắt đầu</a>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td><b>Tên thú cưng:</b></td>
-                    <td class="w-75" th:text="${item.petName}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Loại thú cưng:</b></td>
-                    <td th:text="${item.petType}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Công việc cần thực hiện:</b></td>
-                    <td>
-                        <span class="badge text-bg-info me-2" th:each="service: ${item.spaServices}" th:text="${service.name}">
-                        </span>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td><b>Trạng thái thực hiện:</b></td>
-                    <td>
-                        <span th:if="${item.status != null}" th:text="${item.status.getValue()}"></span>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td><b>Thời gian bắt đầu:</b></td>
-                    <td th:text="${#temporals.format(item.actualStartingTime, 'dd-MM-yyyy HH:mm')}"></td>
-                </tr>
-
-                <tr>
-                    <td><b>Thời gian kết thúc (Dự kiến):</b></td>
-                    <td th:text="${#temporals.format(item.endingTime, 'dd-MM-yyyy HH:mm')}"></td>
-                </tr>
-
-                </tbody>
-            </table>
+            <form method="POST" th:action="@{/appointments/{appointmentId}/{appointmentItemId}/assign-employee(appointmentId=${appointment.getId()},appointmentItemId=${appointmentItem.id})}">
+                <select name="employeeId" class="form-select mb-2 w-auto">
+                    <option value="-1" selected>Chọn nhân viên</option>
+                    <option th:each="emp : ${employees}" th:text="${emp.getId() + ' - ' + emp.getFullName()}" th:value="${emp.getId()}" th:selected="${selectedEmpId == emp.getId()}"></option>
+                </select>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
         </div>
     </div>
 </div>

@@ -1,9 +1,8 @@
 package com.paws.dataseeders;
 
 import com.paws.entities.common.enums.AppointmentLocation;
-import com.paws.models.spaservices.CreateSpaServiceRequest;
+import com.paws.payloads.request.MakeAppointmentItemRequest;
 import com.paws.services.customers.CustomerService;
-import com.paws.services.customers.payloads.MakeAppointmentItemRequest;
 import com.paws.services.employees.EmployeeService;
 import com.paws.services.spasvcs.SpaSvcService;
 import org.springframework.beans.factory.annotation.Autowired;

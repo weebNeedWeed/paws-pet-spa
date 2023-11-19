@@ -18,7 +18,7 @@
         <div class="card-body d-flex gap-2">
             <button class="btn btn-success" id="start">Bắt đầu</button>
 
-            <button class="btn btn-danger">Kết thúc</button>
+            <a type="button" class="btn btn-danger" th:href="@{/appointments/{appointmentId}/details(appointmentId=${appointment.id})}">Trở về</a>
         </div>
     </div>
     <div class="card mb-4 pb-xl-5">

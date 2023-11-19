@@ -1,4 +1,4 @@
-package com.paws.restcontrollers;
+package com.paws.configurations;
 
 import com.paws.exceptions.PawsServiceException;
 import org.springframework.http.HttpStatus;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice(basePackages = "com.paws.restcontrollers")
-public class ErrorRestController {
+public class RestControllerExceptionHandler {
     @ExceptionHandler({BadCredentialsException.class})
     public ProblemDetail handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail

@@ -1,4 +1,4 @@
-package com.paws.services.spasvcs.payloads;
+package com.paws.payloads.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,12 +6,10 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServiceDetailDto {
+@Data
+public class WeightRangeDto {
     private BigDecimal minWeight;
     private BigDecimal maxWeight;
-    private BigDecimal price;
-    private float estimatedCompletionMinutes;
 }

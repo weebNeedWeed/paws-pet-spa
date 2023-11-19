@@ -1,6 +1,5 @@
 package com.paws.security;
 
-import com.paws.services.jwts.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,20 +24,20 @@ public class JwtFilter extends OncePerRequestFilter {
     private HandlerExceptionResolver resolver;
 
     private final CustomerUserDetailsServiceImpl customerUserDetailsServiceImpl;
-    private final JwtService jwtService;
+    private final JwtUtilities jwtUtilities;
 
     @Autowired
-    public JwtFilter(CustomerUserDetailsServiceImpl customerUserDetailsServiceImpl, JwtService jwtService) {
+    public JwtFilter(CustomerUserDetailsServiceImpl customerUserDetailsServiceImpl, JwtUtilities jwtUtilities) {
         this.customerUserDetailsServiceImpl = customerUserDetailsServiceImpl;
-        this.jwtService = jwtService;
+        this.jwtUtilities = jwtUtilities;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = getJwtTokenFromRequest(request);
-            if(StringUtils.hasText(token) && jwtService.validateJwtToken(token)) {
-                String username = jwtService.extractUserNameFromJwtToken(token);
+            if(StringUtils.hasText(token) && jwtUtilities.validateJwtToken(token)) {
+                String username = jwtUtilities.extractUserNameFromJwtToken(token);
 
                 UserDetails userDetails = customerUserDetailsServiceImpl.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null,

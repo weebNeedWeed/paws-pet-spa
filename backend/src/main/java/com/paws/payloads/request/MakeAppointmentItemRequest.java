@@ -1,4 +1,4 @@
-package com.paws.services.customers.payloads;
+package com.paws.payloads.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

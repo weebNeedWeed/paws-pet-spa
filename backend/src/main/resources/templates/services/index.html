@@ -2,7 +2,8 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/shared/_layout}">
+      layout:decorate="~{/shared/_layout}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <title>Dịch vụ Spa</title>
 </head>
@@ -15,7 +16,11 @@
     </ol>
     <div class="card mb-4">
         <div class="card-body">
-            <a type="button" class="btn btn-primary" th:href="@{/services/new}">Thêm mới</a>
+            <a type="button" sec:authorize="hasAuthority('ADMINISTRATOR')" class="btn btn-primary" th:href="@{/services/new}">Thêm mới</a>
+
+            <a type="button" class="btn btn-danger" th:href="@{/}">
+                Về trang chủ
+            </a>
         </div>
     </div>
     <div class="card mb-4">
@@ -42,7 +47,7 @@
 <!--                        <td th:text="${sv.getDefaultEstimatedCompletionMinutes()}"></td>-->
                         <td>
                             <a th:href="@{/services/{serviceId}/details(serviceId=${sv.getId()})}" title="Xem chi tiết" class="btn btn-primary text-white">
-                                <i class="fa-solid fa-eye"></i>
+                                Xem
                             </a>
                         </td>
                     </tr>

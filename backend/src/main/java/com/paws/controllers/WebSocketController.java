@@ -7,18 +7,15 @@ import com.paws.models.websockets.MeasureWeightRequest;
 import com.paws.models.websockets.StartAppointmentRequest;
 import com.paws.models.websockets.StartSpaServiceRequest;
 import com.paws.models.websockets.WebSocketMessage;
-import com.paws.services.employees.EmployeeService;
-import com.paws.services.employees.payloads.AppointmentDto;
-import com.paws.services.employees.payloads.AppointmentItemDto;
-import com.paws.services.spasvcs.payloads.SpaSvcDto;
+import com.paws.services.appointments.AppointmentService;
+import com.paws.payloads.response.AppointmentDto;
+import com.paws.payloads.response.AppointmentItemDto;
+import com.paws.payloads.response.SpaSvcDto;
 import org.quartz.*;
-import org.springframework.cglib.core.Local;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -27,18 +24,18 @@ import java.util.Date;
 
 @Controller
 public class WebSocketController {
-    private final EmployeeService employeeService;
     private final Scheduler scheduler;
+    private final AppointmentService appointmentService;
 
-    public WebSocketController(EmployeeService employeeService, Scheduler scheduler) {
-        this.employeeService = employeeService;
+    public WebSocketController(Scheduler scheduler, AppointmentService appointmentService) {
         this.scheduler = scheduler;
+        this.appointmentService = appointmentService;
     }
 
     @MessageMapping("/start-appointment")
     @SendToUser("/queue/appointments")
     public WebSocketMessage<?> startAppointment(@Payload StartAppointmentRequest request, Principal user) throws Exception {
-        AppointmentDto appointmentDto = employeeService.getAppointmentDetails(request.getAppointmentId());
+        AppointmentDto appointmentDto = appointmentService.getDetails(request.getAppointmentId());
         AppointmentItemDto appointmentItemDto = appointmentDto.getAppointmentItems().stream().filter(
                 x -> x.getId() == request.getAppointmentItemId()
         ).findFirst().orElseThrow();
@@ -50,7 +47,7 @@ public class WebSocketController {
 
         if(appointmentItemDto.getStatus() == null
                 || appointmentItemDto.getStatus() == AppointmentItemStatus.MEASURING_WEIGHT) {
-            employeeService.initDetailedAppointment(request.getAppointmentItemId());
+            appointmentService.initDetailed(request.getAppointmentItemId());
             return new WebSocketMessage<Object>(null, "start_measuring_weight");
         }
 
@@ -79,7 +76,7 @@ public class WebSocketController {
     @MessageMapping("/measure-weight")
     @SendToUser("/queue/appointments")
     public WebSocketMessage<?> measureWeight(@Payload MeasureWeightRequest request, Principal user) throws Exception{
-        employeeService.measurePetWeight(request.getAppointmentItemId(), request.getWeight());
+        appointmentService.measurePetWeight(request.getAppointmentItemId(), request.getWeight());
 
         StartSpaServiceRequest req = new StartSpaServiceRequest();
         req.setTaskIndex(0);
@@ -90,7 +87,7 @@ public class WebSocketController {
     }
 
     public WebSocketMessage<?> startSpaService(StartSpaServiceRequest request, Principal user) throws Exception{
-        AppointmentDto appointmentDto = employeeService.getAppointmentDetails(request.getAppointmentId());
+        AppointmentDto appointmentDto = appointmentService.getDetails(request.getAppointmentId());
         AppointmentItemDto appointmentItemDto = appointmentDto.getAppointmentItems().stream().filter(
                 x -> x.getId() == request.getAppointmentItemId()
         ).findFirst().orElseThrow();
@@ -102,7 +99,7 @@ public class WebSocketController {
         SpaSvcDto service = appointmentItemDto.getSpaServices().get(request.getTaskIndex());
         long serviceId = service.getId();
 
-        LocalDateTime endTime = employeeService.calculateEndTimeForService(
+        LocalDateTime endTime = appointmentService.calculateEndTimeForService(
                 appointmentItemDto.getPetWeight(), serviceId);
 
         startTimer(user.getName(), appointmentItemDto.getId(), request.getTaskIndex(), endTime);

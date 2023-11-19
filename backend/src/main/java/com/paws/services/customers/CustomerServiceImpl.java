@@ -6,10 +6,10 @@ import com.paws.exceptions.*;
 import com.paws.repositories.AppointmentRepository;
 import com.paws.repositories.PetTypeRepository;
 import com.paws.repositories.SpaServiceRepository;
-import com.paws.services.customers.payloads.CustomerAuthenticationResult;
-import com.paws.services.customers.payloads.CustomerDto;
-import com.paws.services.customers.payloads.MakeAppointmentItemRequest;
-import com.paws.services.jwts.JwtService;
+import com.paws.payloads.response.CustomerAuthenticationResult;
+import com.paws.payloads.response.CustomerDto;
+import com.paws.payloads.request.MakeAppointmentItemRequest;
+import com.paws.security.JwtUtilities;
 import com.paws.entities.common.enums.AppointmentLocation;
 import com.paws.entities.common.enums.Gender;
 import com.paws.repositories.CustomerRepository;
@@ -30,20 +30,20 @@ public class CustomerServiceImpl implements CustomerService{
     private final AuthenticationManager authenticationManager;
     private final CustomerRepository customerRepository;
     private final PetTypeRepository petTypeRepository;
-    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AppointmentRepository appointmentRepository;
     private final SpaServiceRepository spaServiceRepository;
+    private final JwtUtilities jwtUtilities;
 
     @Autowired
-    public CustomerServiceImpl(AuthenticationManager authenticationManager, CustomerRepository customerRepository, PetTypeRepository petTypeRepository, JwtService jwtService, PasswordEncoder passwordEncoder, AppointmentRepository appointmentRepository, SpaServiceRepository spaServiceRepository) {
+    public CustomerServiceImpl(AuthenticationManager authenticationManager, CustomerRepository customerRepository, PetTypeRepository petTypeRepository, PasswordEncoder passwordEncoder, AppointmentRepository appointmentRepository, SpaServiceRepository spaServiceRepository, JwtUtilities jwtUtilities) {
         this.authenticationManager = authenticationManager;
         this.customerRepository = customerRepository;
         this.petTypeRepository = petTypeRepository;
-        this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.appointmentRepository = appointmentRepository;
         this.spaServiceRepository = spaServiceRepository;
+        this.jwtUtilities = jwtUtilities;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class CustomerServiceImpl implements CustomerService{
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         Customer customer = customerRepository.getCustomerByUsername(username);
-        String token = jwtService.generateJwtToken(customer);
+        String token = jwtUtilities.generateJwtToken(customer);
 
         CustomerDto customerDto = mapToCustomerDto(customer);
 
@@ -89,7 +89,7 @@ public class CustomerServiceImpl implements CustomerService{
 
         customerRepository.save(customer);
 
-        String token = jwtService.generateJwtToken(customer);
+        String token = jwtUtilities.generateJwtToken(customer);
         CustomerDto customerDto = mapToCustomerDto(customer);
 
         CustomerAuthenticationResult result = new CustomerAuthenticationResult();
@@ -143,8 +143,7 @@ public class CustomerServiceImpl implements CustomerService{
             appointment.addItem(appointmentItem);
         }
 
-        // TODO: set it to pending later
-        appointment.setStatus(AppointmentStatus.SCHEDULED);
+        appointment.setStatus(AppointmentStatus.PENDING);
         appointment.setNote(note);
         appointment.setAppointmentTime(time);
         appointment.setLocation(location);

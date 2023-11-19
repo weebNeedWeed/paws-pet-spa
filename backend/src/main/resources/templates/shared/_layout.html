@@ -57,6 +57,9 @@
             <div class="sb-sidenav-footer">
                 <div class="small">Đăng nhập bằng:</div>
                 <span sec:authentication="name"></span>
+
+                <div class="small">Vai trò:</div>
+                <span sec:authentication="principal.authorities"></span>
             </div>
         </nav>
     </div>

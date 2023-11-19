@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class EmployeeDataSeeder implements CommandLineRunner {
@@ -53,23 +56,32 @@ public class EmployeeDataSeeder implements CommandLineRunner {
 
     private void seedAdministratorAccount() {
         if(employeeRepository.count() == 0) {
-            Employee admin = new Employee();
+            seedEmployee("Nguyen van A", "emp1", RoleNameConstants.NORMAL_EMPLOYEE);
+            seedEmployee("Le van B", "emp2", RoleNameConstants.NORMAL_EMPLOYEE);
 
-            admin.setAddress("");
-            admin.setEmail("");
-            admin.setDateOfBirth(LocalDateTime.now().toLocalDate());
-            admin.setGender(Gender.MALE);
-            admin.setFullName("");
-            admin.setFirstWorkingDay(LocalDateTime.now().toLocalDate());
-            admin.setIdentityNumber("");
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setPhoneNumber("");
+            seedEmployee("Admin", "admin", RoleNameConstants.ADMINISTRATOR);
 
-            Role adminRole = roleRepository.findFirstByNameEquals(RoleNameConstants.ADMINISTRATOR);
-            adminRole.addEmployee(admin);
-
-            roleRepository.save(adminRole);
+            seedEmployee("Coordinator", "coordinator", RoleNameConstants.COORDINATOR);
         }
+    }
+
+    private void seedEmployee(String fullName, String username, String roleName) {
+        Employee emp1 = new Employee();
+
+        emp1.setAddress("");
+        emp1.setEmail(username + "@gmail.com");
+        emp1.setDateOfBirth(LocalDateTime.now().toLocalDate());
+        emp1.setGender(Gender.MALE);
+        emp1.setFullName(fullName);
+        emp1.setFirstWorkingDay(LocalDateTime.now().toLocalDate());
+        emp1.setIdentityNumber(Stream.of(username.getBytes()).map(Object::toString).collect(Collectors.joining("")));
+        emp1.setUsername(username);
+        emp1.setPassword(passwordEncoder.encode(username));
+        emp1.setPhoneNumber("012345678910");
+
+        Role role = roleRepository.findFirstByNameEquals(roleName);
+        role.addEmployee(emp1);
+
+        roleRepository.save(role);
     }
 }

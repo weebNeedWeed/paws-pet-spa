@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 public class PetTypeNotFoundException extends Exception implements PawsServiceException{
     @Override
     public HttpStatus getCode() {
-        return HttpStatus.BAD_REQUEST;
+        return HttpStatus.NOT_FOUND;
     }
 
     @Override

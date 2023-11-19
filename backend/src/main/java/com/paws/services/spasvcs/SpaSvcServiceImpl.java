@@ -4,8 +4,8 @@ import com.paws.exceptions.InvalidWeightRangeException;
 import com.paws.exceptions.SpaServiceNameAlreadyExistsException;
 import com.paws.exceptions.SpaServiceNotFoundException;
 import com.paws.repositories.SpaServiceDetailRepository;
-import com.paws.services.spasvcs.payloads.ServiceDetailDto;
-import com.paws.services.spasvcs.payloads.SpaSvcDto;
+import com.paws.payloads.response.ServiceDetailDto;
+import com.paws.payloads.response.SpaSvcDto;
 import com.paws.entities.PetWeightRange;
 import com.paws.entities.SpaService;
 import com.paws.entities.SpaServiceDetail;
@@ -32,7 +32,7 @@ public class SpaSvcServiceImpl implements SpaSvcService{
     }
 
     @Override
-    public SpaSvcDto addService(String name, String description, BigDecimal defaultPrice, float defaultEstimatedCompletionMinutes) throws SpaServiceNameAlreadyExistsException {
+    public void addNew(String name, String description, BigDecimal defaultPrice, float defaultEstimatedCompletionMinutes) throws SpaServiceNameAlreadyExistsException {
         if(spaServiceRepository.existsSpaServiceByName(name)) {
             throw new SpaServiceNameAlreadyExistsException();
         }
@@ -44,12 +44,10 @@ public class SpaSvcServiceImpl implements SpaSvcService{
         service.setDefaultEstimatedCompletionMinutes(defaultEstimatedCompletionMinutes);
 
         spaServiceRepository.save(service);
-
-        return mapSpaServiceToSpaSvcDto(service);
     }
 
     @Override
-    public void deleteService(long serviceId) throws SpaServiceNotFoundException {
+    public void delete(long serviceId) throws SpaServiceNotFoundException {
         SpaService service = spaServiceRepository.getSpaServiceById(serviceId);
         if(service == null) {
             throw new SpaServiceNotFoundException();
@@ -59,13 +57,13 @@ public class SpaSvcServiceImpl implements SpaSvcService{
     }
 
     @Override
-    public List<SpaSvcDto> getAllServices() {
+    public List<SpaSvcDto> getAll() {
         List<SpaService> spaServices = spaServiceRepository.getAllSpaServices();
         return spaServices.stream().map(sv -> mapSpaServiceToSpaSvcDto(sv)).toList();
     }
 
     @Override
-    public SpaSvcDto getServiceById(long serviceId) {
+    public SpaSvcDto getById(long serviceId) {
         SpaService service = spaServiceRepository.getSpaServiceById(serviceId);
         if(service == null) {
             return null;
@@ -104,7 +102,7 @@ public class SpaSvcServiceImpl implements SpaSvcService{
     }
 
     @Override
-    public void updateService(long serviceId, String name, String description, BigDecimal defaultPrice, float defaultEstimatedCompletionMinutes) throws SpaServiceNotFoundException, SpaServiceNameAlreadyExistsException {
+    public void update(long serviceId, String name, String description, BigDecimal defaultPrice, float defaultEstimatedCompletionMinutes) throws SpaServiceNotFoundException, SpaServiceNameAlreadyExistsException {
         SpaService service = spaServiceRepository.getSpaServiceById(serviceId);
         if(service == null) {
             throw new SpaServiceNotFoundException();

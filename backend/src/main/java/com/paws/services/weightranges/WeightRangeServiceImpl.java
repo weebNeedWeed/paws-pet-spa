@@ -2,7 +2,7 @@ package com.paws.services.weightranges;
 
 import com.paws.entities.PetWeightRange;
 import com.paws.repositories.PetWeightRangeRepository;
-import com.paws.services.weightranges.payloads.WeightRangeDto;
+import com.paws.payloads.response.WeightRangeDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

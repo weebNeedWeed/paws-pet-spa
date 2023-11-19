@@ -1,4 +1,4 @@
-package com.paws.services.customers.payloads;
+package com.paws.payloads.response;
 
 import com.paws.entities.common.enums.Gender;
 import lombok.AllArgsConstructor;

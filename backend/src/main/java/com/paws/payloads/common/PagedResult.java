@@ -1,4 +1,4 @@
-package com.paws.services.common.payloads;
+package com.paws.payloads.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

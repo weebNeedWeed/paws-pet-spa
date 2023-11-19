@@ -2,16 +2,14 @@ package com.paws.restcontrollers;
 
 import com.paws.exceptions.UsernameAlreadyExistsException;
 import com.paws.services.customers.CustomerService;
-import com.paws.services.customers.payloads.CustomerAuthenticationResult;
+import com.paws.payloads.response.CustomerAuthenticationResult;
 import com.paws.models.customers.AuthenticationResponse;
 import com.paws.models.customers.LoginRequest;
 import com.paws.models.customers.RegisterRequest;
-import com.paws.services.customers.payloads.CustomerDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

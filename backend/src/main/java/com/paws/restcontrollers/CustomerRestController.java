@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/customers")
-public class CustomerRestController {
+public class CustomerRestController extends BaseRestController{
     private final CustomerService customerService;
 
     @Autowired
@@ -39,6 +39,10 @@ public class CustomerRestController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) throws UsernameAlreadyExistsException {
+        if(bindingResult.hasErrors()) {
+            return validationProblemDetails(bindingResult);
+        }
+
         CustomerAuthenticationResult result = customerService.register(request.getUsername(),
                 request.getPassword(),
                 request.getEmail(),

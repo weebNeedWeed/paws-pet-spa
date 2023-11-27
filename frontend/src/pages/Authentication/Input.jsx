@@ -22,11 +22,10 @@ function Input({ label, name, placeholder, type, className, validation }) {
         id={id}
         type={type}
         placeholder={placeholder}
-        name={name}
-        className="outline-none border-2 w-full p-3 rounded"
+        className="outline-none border-liver border-2 w-full p-3 rounded"
         {...register(name, validation)}
       />
-      <span className="text-sm font-light text-red-500">{errorMessage}</span>
+      <span className="text-sm font-normal text-red-700">{errorMessage}</span>
     </div>
   );
 }

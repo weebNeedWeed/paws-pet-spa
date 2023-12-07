@@ -100,84 +100,13 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    @Transactional
-    public void makeAppointment(long customerId,
-                                AppointmentLocation location,
-                                LocalDateTime time,
-                                String note,
-                                List<MakeAppointmentItemRequest> makeAppointmentItemRequests) throws CustomerNotFoundException, InvalidAppointmentTimeException, PetTypeNotFoundException, SpaServiceNotFoundException {
-        Customer customer = customerRepository.findById(customerId);
+    public CustomerDto getProfile(String username) throws CustomerNotFoundException {
+        Customer customer = customerRepository.getCustomerByUsername(username);
         if(customer == null) {
             throw new CustomerNotFoundException();
         }
 
-        // Validate appointment time is valid
-        LocalDateTime lowBoundary = LocalDateTime.now();
-        LocalDateTime highBoundary = lowBoundary.plusDays(7);
-
-        if(time.isBefore(lowBoundary) || time.isAfter(highBoundary)) {
-            throw new InvalidAppointmentTimeException();
-        }
-
-        Appointment appointment = new Appointment();
-
-        for(MakeAppointmentItemRequest request : makeAppointmentItemRequests) {
-            PetType petType = petTypeRepository.findById(request.getPetTypeId());
-            if(petType == null) {
-                throw new PetTypeNotFoundException();
-            }
-
-            AppointmentItem appointmentItem = new AppointmentItem();
-            appointmentItem.setPetName(request.getPetName());
-            appointmentItem.setPetType(petType);
-
-            for(Long serviceId : request.getServiceIds()) {
-                SpaService spaService = spaServiceRepository.getSpaServiceById(serviceId);
-                if(spaService == null) {
-                    throw new SpaServiceNotFoundException();
-                }
-
-                appointmentItem.getSpaServices().add(spaService);
-            }
-
-            appointment.addItem(appointmentItem);
-        }
-
-        appointment.setStatus(AppointmentStatus.PENDING);
-        appointment.setNote(note);
-        appointment.setAppointmentTime(time);
-        appointment.setLocation(location);
-
-        customer.addAppointment(appointment);
-
-        customerRepository.save(customer);
-    }
-
-    @Override
-    @Transactional
-    public void cancelAppointment(long customerId, long appointmentId) throws CustomerNotFoundException, AppointmentNotFoundException {
-        Customer customer = customerRepository.findById(customerId);
-        if(customer == null) {
-            throw new CustomerNotFoundException();
-        }
-
-        Appointment appointment = appointmentRepository.findByAppointmentIdAndCustomerId(appointmentId, customerId);
-        if(appointment == null) {
-            throw new AppointmentNotFoundException();
-        }
-
-        appointment.setStatus(AppointmentStatus.CANCELED);
-        appointmentRepository.save(appointment);
-    }
-
-    @Override
-    public void updateProfile(long customerId, String email, String fullName, String address, String phoneNumber, Gender gender) {
-
-    }
-
-    @Override
-    public void changePassword(long customerId, String oldPassword, String newPassword) {
-
+        return mapToCustomerDto(customer);
     }
 
     private CustomerDto mapToCustomerDto(Customer customer) {

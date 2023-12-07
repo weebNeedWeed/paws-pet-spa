@@ -1,6 +1,5 @@
 import { FormProvider, useForm } from "react-hook-form";
-import Input from "./Input";
-import RadioButton from "./RadioButton";
+import { Input, RadioButton } from "../../components/form";
 import { Link, useNavigate } from "react-router-dom";
 import useRegister from "./../../hooks/useRegister";
 import { toast } from "react-toastify";

@@ -1,21 +1,12 @@
-import axios from "axios";
+import BaseService from "./BaseService";
 
-class AuthenticationService {
-  axiosInstance;
-
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: import.meta.env.VITE_BASE_URL,
-      timeout: 1000,
-    });
-  }
-
+class AuthenticationService extends BaseService {
   login(params) {
-    return this.axiosInstance.post("/customers/login", params);
+    return this.axiosInstance.post("/customer/login", params);
   }
 
   register(params) {
-    return this.axiosInstance.post("/customers/register", params);
+    return this.axiosInstance.post("/customer/register", params);
   }
 }
 

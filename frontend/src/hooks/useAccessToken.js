@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 const token_key = "token";
 
 export default function useAccessToken() {
-  const [accessToken] = useState(() => {
+  const [accessToken, setAccessToken] = useState(() => {
     const localStorageToken = localStorage.getItem(token_key);
     const sessionStorageToken = sessionStorage.getItem(token_key);
     if (localStorageToken && sessionStorageToken) {
@@ -20,7 +20,16 @@ export default function useAccessToken() {
     } else {
       sessionStorage.setItem(token_key, token);
     }
+
+    setAccessToken(token);
   }, []);
 
-  return [accessToken, setAccessTokenWithRememberMeMode];
+  const invalidateAccessToken = useCallback(() => {
+    localStorage.removeItem(token_key);
+    sessionStorage.removeItem(token_key);
+
+    setAccessToken("");
+  }, []);
+
+  return [accessToken, setAccessTokenWithRememberMeMode, invalidateAccessToken];
 }

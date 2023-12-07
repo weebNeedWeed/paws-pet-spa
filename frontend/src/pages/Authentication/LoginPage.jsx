@@ -1,9 +1,8 @@
 import { FormProvider, useForm } from "react-hook-form";
-import Input from "./Input";
+import { Input, Checkbox } from "../../components/form";
 import useLogin from "../../hooks/useLogin";
 import { toast } from "react-toastify";
-import useAccessToken from "./../../hooks/useAccessToken";
-import Checkbox from "./Checkbox";
+import useAccessToken from "../../hooks/useAccessToken";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -58,7 +57,7 @@ function LoginPage() {
 
   useEffect(() => {
     if (isLoginSuccess) {
-      const accessToken = loginData.data.token;
+      const { token: accessToken } = loginData.data;
       setAccessToken(accessToken, rememberMe);
 
       toast.success("Đăng nhập thành công");

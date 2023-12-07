@@ -3,6 +3,7 @@ package com.paws.configurations;
 import com.paws.exceptions.PawsServiceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,6 +15,14 @@ public class RestControllerExceptionHandler {
     public ProblemDetail handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail
                 .forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials.");
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail
+                .forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied.");
 
         return problemDetail;
     }

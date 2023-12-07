@@ -2,10 +2,12 @@ package com.paws.services.appointments;
 
 import com.paws.entities.*;
 import com.paws.entities.common.enums.AppointmentItemStatus;
+import com.paws.entities.common.enums.AppointmentLocation;
 import com.paws.entities.common.enums.AppointmentStatus;
 import com.paws.exceptions.*;
 import com.paws.jobs.CancelLateAppointmentJob;
 import com.paws.payloads.common.PagedResult;
+import com.paws.payloads.request.MakeAppointmentItemRequest;
 import com.paws.payloads.response.AppointmentDto;
 import com.paws.payloads.response.AppointmentItemDto;
 import com.paws.payloads.response.EmployeeDto;
@@ -34,10 +36,12 @@ public class AppointmentServiceImpl implements AppointmentService{
     private final SpaServiceDetailRepository spaServiceDetailRepository;
     private final SpaServiceRepository spaServiceRepository;
     private final EmployeeRepository employeeRepository;
+    private final CustomerRepository customerRepository;
+    private final PetTypeRepository petTypeRepository;
     private final Scheduler scheduler;
 
     @Autowired
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, AppointmentItemRepository appointmentItemRepository, DetailedAppointmentItemRepository detailedAppointmentItemRepository, PetWeightRangeRepository petWeightRangeRepository, SpaServiceDetailRepository spaServiceDetailRepository, SpaServiceRepository spaServiceRepository, EmployeeRepository employeeRepository, Scheduler scheduler) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, AppointmentItemRepository appointmentItemRepository, DetailedAppointmentItemRepository detailedAppointmentItemRepository, PetWeightRangeRepository petWeightRangeRepository, SpaServiceDetailRepository spaServiceDetailRepository, SpaServiceRepository spaServiceRepository, EmployeeRepository employeeRepository, CustomerRepository customerRepository, PetTypeRepository petTypeRepository, Scheduler scheduler) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentItemRepository = appointmentItemRepository;
         this.detailedAppointmentItemRepository = detailedAppointmentItemRepository;
@@ -45,6 +49,8 @@ public class AppointmentServiceImpl implements AppointmentService{
         this.spaServiceDetailRepository = spaServiceDetailRepository;
         this.spaServiceRepository = spaServiceRepository;
         this.employeeRepository = employeeRepository;
+        this.customerRepository = customerRepository;
+        this.petTypeRepository = petTypeRepository;
         this.scheduler = scheduler;
     }
 
@@ -287,5 +293,59 @@ public class AppointmentServiceImpl implements AppointmentService{
             mins = complementMins + serviceDetail.getEstimatedCompletionMinutes();// estimated time plus 15 complement minutes
 
         return now.plusMinutes((int)mins);
+    }
+
+    @Override
+    @Transactional
+    public void makeAppointment(String username,
+                                AppointmentLocation location,
+                                LocalDateTime time,
+                                String note,
+                                List<MakeAppointmentItemRequest> makeAppointmentItemRequests) throws CustomerNotFoundException, InvalidAppointmentTimeException, PetTypeNotFoundException, SpaServiceNotFoundException {
+        Customer customer = customerRepository.findByUsername(username);
+        if(customer == null) {
+            throw new CustomerNotFoundException();
+        }
+
+        // Validate appointment time is valid
+        LocalDateTime lowBoundary = LocalDateTime.now();
+        LocalDateTime highBoundary = lowBoundary.plusDays(7);
+
+        if(time.isBefore(lowBoundary) || time.isAfter(highBoundary)) {
+            throw new InvalidAppointmentTimeException();
+        }
+
+        Appointment appointment = new Appointment();
+
+        for(MakeAppointmentItemRequest request : makeAppointmentItemRequests) {
+            PetType petType = petTypeRepository.findById((long)request.getPetTypeId());
+            if(petType == null) {
+                throw new PetTypeNotFoundException();
+            }
+
+            AppointmentItem appointmentItem = new AppointmentItem();
+            appointmentItem.setPetName(request.getPetName());
+            appointmentItem.setPetType(petType);
+
+            for(Long serviceId : request.getServiceIds()) {
+                SpaService spaService = spaServiceRepository.getSpaServiceById(serviceId);
+                if(spaService == null) {
+                    throw new SpaServiceNotFoundException();
+                }
+
+                appointmentItem.getSpaServices().add(spaService);
+            }
+
+            appointment.addItem(appointmentItem);
+        }
+
+        appointment.setStatus(AppointmentStatus.PENDING);
+        appointment.setNote(note);
+        appointment.setAppointmentTime(time);
+        appointment.setLocation(location);
+
+        customer.addAppointment(appointment);
+
+        customerRepository.save(customer);
     }
 }

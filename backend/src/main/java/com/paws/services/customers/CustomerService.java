@@ -5,6 +5,7 @@ import com.paws.payloads.request.MakeAppointmentItemRequest;
 import com.paws.payloads.response.CustomerAuthenticationResult;
 import com.paws.entities.common.enums.AppointmentLocation;
 import com.paws.entities.common.enums.Gender;
+import com.paws.payloads.response.CustomerDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,22 +22,5 @@ public interface CustomerService {
                                           String phoneNumber,
                                           Gender gender) throws UsernameAlreadyExistsException;
 
-    void makeAppointment(long customerId,
-                                AppointmentLocation location,
-                                LocalDateTime time,
-                                String note,
-                                List<MakeAppointmentItemRequest> appointmentItems) throws CustomerNotFoundException, InvalidAppointmentTimeException, PetTypeNotFoundException, SpaServiceNotFoundException;
-
-    void cancelAppointment(long customerId, long appointmentId) throws CustomerNotFoundException, AppointmentNotFoundException;
-
-    void updateProfile(long customerId,
-                       String email,
-                       String fullName,
-                       String address,
-                       String phoneNumber,
-                       Gender gender);
-
-    void changePassword(long customerId,
-                        String oldPassword,
-                        String newPassword);
+    CustomerDto getProfile(String username) throws CustomerNotFoundException;
 }

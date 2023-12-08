@@ -4,14 +4,12 @@ import com.paws.entities.*;
 import com.paws.entities.common.enums.AppointmentItemStatus;
 import com.paws.entities.common.enums.AppointmentLocation;
 import com.paws.entities.common.enums.AppointmentStatus;
+import com.paws.entities.common.enums.BillStatus;
 import com.paws.exceptions.*;
 import com.paws.jobs.CancelLateAppointmentJob;
 import com.paws.payloads.common.PagedResult;
 import com.paws.payloads.request.MakeAppointmentItemRequest;
-import com.paws.payloads.response.AppointmentDto;
-import com.paws.payloads.response.AppointmentItemDto;
-import com.paws.payloads.response.EmployeeDto;
-import com.paws.payloads.response.SpaSvcDto;
+import com.paws.payloads.response.*;
 import com.paws.repositories.*;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +36,11 @@ public class AppointmentServiceImpl implements AppointmentService{
     private final EmployeeRepository employeeRepository;
     private final CustomerRepository customerRepository;
     private final PetTypeRepository petTypeRepository;
+    private final BillRepository billRepository;
     private final Scheduler scheduler;
 
     @Autowired
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, AppointmentItemRepository appointmentItemRepository, DetailedAppointmentItemRepository detailedAppointmentItemRepository, PetWeightRangeRepository petWeightRangeRepository, SpaServiceDetailRepository spaServiceDetailRepository, SpaServiceRepository spaServiceRepository, EmployeeRepository employeeRepository, CustomerRepository customerRepository, PetTypeRepository petTypeRepository, Scheduler scheduler) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, AppointmentItemRepository appointmentItemRepository, DetailedAppointmentItemRepository detailedAppointmentItemRepository, PetWeightRangeRepository petWeightRangeRepository, SpaServiceDetailRepository spaServiceDetailRepository, SpaServiceRepository spaServiceRepository, EmployeeRepository employeeRepository, CustomerRepository customerRepository, PetTypeRepository petTypeRepository, BillRepository billRepository, Scheduler scheduler) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentItemRepository = appointmentItemRepository;
         this.detailedAppointmentItemRepository = detailedAppointmentItemRepository;
@@ -51,6 +50,7 @@ public class AppointmentServiceImpl implements AppointmentService{
         this.employeeRepository = employeeRepository;
         this.customerRepository = customerRepository;
         this.petTypeRepository = petTypeRepository;
+        this.billRepository = billRepository;
         this.scheduler = scheduler;
     }
 
@@ -266,11 +266,9 @@ public class AppointmentServiceImpl implements AppointmentService{
             sum += seconds;
         }
 
-        int complementMins = 0;
-        LocalDateTime appointmentEndTime = now.plusSeconds(sum).plusMinutes(complementMins);
+        LocalDateTime appointmentEndTime = now.plusSeconds(sum);
 
         detailedAppointmentItem.setEndingTime(appointmentEndTime);
-
         detailedAppointmentItemRepository.save(detailedAppointmentItem);
     }
 
@@ -282,15 +280,12 @@ public class AppointmentServiceImpl implements AppointmentService{
 
         LocalDateTime now = LocalDateTime.now();
 
-        // TODO: change it later
-        float complementMins = 0;
-
         SpaService service = spaServiceRepository.getSpaServiceById(serviceId);
-        float mins = complementMins + service.getDefaultEstimatedCompletionMinutes();
+        float mins = service.getDefaultEstimatedCompletionMinutes();
 
         SpaServiceDetail serviceDetail = spaServiceDetailRepository.findByServiceIdAndWeightRange(serviceId, range.getId().getMinWeight(), range.getId().getMaxWeight());
         if(serviceDetail != null)
-            mins = complementMins + serviceDetail.getEstimatedCompletionMinutes();// estimated time plus 15 complement minutes
+            mins = serviceDetail.getEstimatedCompletionMinutes();// estimated time plus 15 complement minutes
 
         return now.plusMinutes((int)mins);
     }
@@ -309,7 +304,7 @@ public class AppointmentServiceImpl implements AppointmentService{
 
         // Validate appointment time is valid
         LocalDateTime lowBoundary = LocalDateTime.now();
-        LocalDateTime highBoundary = lowBoundary.plusDays(7);
+        LocalDateTime highBoundary = lowBoundary.plusDays(14); // 2 weeks
 
         if(time.isBefore(lowBoundary) || time.isAfter(highBoundary)) {
             throw new InvalidAppointmentTimeException();
@@ -347,5 +342,127 @@ public class AppointmentServiceImpl implements AppointmentService{
         customer.addAppointment(appointment);
 
         customerRepository.save(customer);
+    }
+
+    @Override
+    public void setDoneItem(long appointmentItemId) throws AppointmentItemNotFoundException {
+        DetailedAppointmentItem item = detailedAppointmentItemRepository.findById(appointmentItemId);
+        if(item == null) {
+            throw new AppointmentItemNotFoundException();
+        }
+
+        item.setStatus(AppointmentItemStatus.DONE);
+
+        detailedAppointmentItemRepository.save(item);
+    }
+
+    @Override
+    public void setDoneAppointment(long appointmentId) throws AppointmentNotFoundException {
+        Appointment appointment = appointmentRepository.findById(appointmentId);
+        if(appointment == null) {
+            throw new AppointmentNotFoundException();
+        }
+
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    @Transactional
+    public void generateBill(long appointmentId) throws AppointmentNotFoundException {
+        Appointment appointment = appointmentRepository.findById(appointmentId);
+        if(appointment == null) {
+            throw new AppointmentNotFoundException();
+        }
+
+        Bill bill = new Bill();
+        bill.setAppointment(appointment);
+        bill.setStatus(BillStatus.UN_PAID);
+
+        BigDecimal sum = BigDecimal.valueOf(0);
+
+        List<AppointmentItem> items = appointment.getAppointmentItems();
+        for(AppointmentItem item : items) {
+            DetailedAppointmentItem detailedItem = detailedAppointmentItemRepository.findById((long)item.getId());
+            Set<SpaService> spaServices = item.getSpaServices();
+            for(SpaService service: spaServices) {
+                BillItem billItem = new BillItem();
+                BigDecimal price = calculatePriceByWeight(service, detailedItem.getPetWeight());
+
+                sum = sum.add(price);
+
+                billItem.setPrice(price);
+                billItem.setPetWeight(detailedItem.getPetWeight());
+                billItem.setPetType(item.getPetType());
+                billItem.setSpaService(service);
+                billItem.setPetName(item.getPetName());
+
+                bill.addItem(billItem);
+            }
+        }
+
+        bill.setTotalAmount(sum);
+
+        billRepository.save(bill);
+    }
+
+    @Override
+    @Transactional
+    public BillDto getBill(long appointmentId) throws BillNotFoundException {
+        Bill bill = billRepository.findById(appointmentId)
+                .orElseThrow(BillNotFoundException::new);
+
+        BillDto billDto = new BillDto();
+        billDto.setTotalAmount(bill.getTotalAmount());
+        billDto.setStatus(bill.getStatus());
+        billDto.setId(bill.getId());
+        billDto.setCreatedAt(bill.getCreatedAt());
+        billDto.setUpdatedAt(bill.getUpdatedAt());
+
+        List<BillItemDto> items = bill.getBillItems().stream().map(x -> {
+            DetailedAppointmentItem detailedItem = detailedAppointmentItemRepository.findById((long)x.getId());
+
+            BillItemDto dto = new BillItemDto();
+            dto.setId(x.getId());
+            dto.setPrice(x.getPrice());
+            dto.setPetWeight(detailedItem.getPetWeight());
+            dto.setPetName(x.getPetName());
+
+            PetType petType = x.getPetType();
+            dto.setPetType(new PetTypeDto());
+            dto.getPetType().setId(petType.getId());
+            dto.getPetType().setName(petType.getName());
+
+            SpaService svc = x.getSpaService();
+            dto.setSpaService(new SpaSvcDto());
+            dto.getSpaService().setId(svc.getId());
+            dto.getSpaService().setName(svc.getName());
+
+            return dto;
+        }).toList();
+
+        billDto.setBillItems(items);
+
+        return billDto;
+    }
+
+    private BigDecimal calculatePriceByWeight(SpaService service, double weight) {
+        BigDecimal price = service.getDefaultPrice();
+
+        double floorWeight = Math.floor(weight * 10) / (double) 10;
+        PetWeightRange range = petWeightRangeRepository
+                .getPetWeightRangeByWeight(BigDecimal.valueOf(floorWeight));
+        if(range == null) {
+            return price;
+        }
+
+        SpaServiceDetail svcDetail = spaServiceDetailRepository.findByServiceIdAndWeightRange(service.getId(),
+                range.getId().getMinWeight(), range.getId().getMaxWeight());
+
+        if(svcDetail != null) {
+            price = svcDetail.getPrice();
+        }
+
+        return price;
     }
 }

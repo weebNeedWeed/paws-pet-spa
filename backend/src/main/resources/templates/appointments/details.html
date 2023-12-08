@@ -86,7 +86,7 @@
                         <a sec:authorize="hasAuthority('COORDINATOR')" type="button" th:class="${'btn btn-warning ' + (canAssignEmp ? '' : 'disabled')}" th:href="@{/appointments/{appointmentId}/{appointmentItemId}/assign-employee(appointmentId=${appointment.id},appointmentItemId=${item.id})}">Phân công</a>
 
                         <a sec:authorize="hasAuthority('NORMAL_EMPLOYEE')"
-                           th:if="${item.employee != null && item.employee.username == #authentication.getName()}"
+                           th:if="${item.employee != null && item.employee.username == #authentication.getName() && (item.status == null || item.status.toString() != 'DONE')}"
                            th:class="${'btn btn-success ' + (canAssignEmp ? 'disabled' : '')}"
                            th:href="@{/appointments/{appointmentId}/{appointmentItemId}/start(appointmentId=${appointment.id},appointmentItemId=${item.id})}">Bắt đầu</a>
                     </td>

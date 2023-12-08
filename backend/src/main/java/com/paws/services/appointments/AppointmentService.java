@@ -5,6 +5,7 @@ import com.paws.exceptions.*;
 import com.paws.payloads.common.PagedResult;
 import com.paws.payloads.request.MakeAppointmentItemRequest;
 import com.paws.payloads.response.AppointmentDto;
+import com.paws.payloads.response.BillDto;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -32,4 +33,12 @@ public interface AppointmentService {
                          LocalDateTime time,
                          String note,
                          List<MakeAppointmentItemRequest> appointmentItems) throws CustomerNotFoundException, InvalidAppointmentTimeException, PetTypeNotFoundException, SpaServiceNotFoundException;
+
+    void setDoneItem(long appointmentItemId) throws AppointmentItemNotFoundException;
+
+    void setDoneAppointment(long appointmentId) throws AppointmentNotFoundException;
+
+    void generateBill(long appointmentId) throws AppointmentNotFoundException;
+
+    BillDto getBill(long appointmentId) throws BillNotFoundException;
 }

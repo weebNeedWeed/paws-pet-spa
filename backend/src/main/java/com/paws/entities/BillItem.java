@@ -1,9 +1,19 @@
 package com.paws.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "bill_items")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class BillItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,10 +22,10 @@ public class BillItem {
     private String petName;
 
     @Column(nullable = false)
-    private float petWeight;
+    private double petWeight;
 
-    @Column(nullable = false)
-    private float price;
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "bill_id")

@@ -73,11 +73,30 @@
                 <div id="task-box">
                 </div>
             </div>
+
+            <div id="payment" class="mt-4 d-none">
+                <div class="d-flex flex-row w-100 gap-2">
+                    <span class="fw-bold">3. Thanh toán</span>
+                    <hr class="border border-dark flex-grow-1">
+                </div>
+
+                <div id="qr-box" class="d-flex flex-column justify-content-center align-items-center">
+                    <span class="text-center bold">Mã QR thanh toán online:</span>
+                    <div id="qr-code"></div>
+                </div>
+
+                <div class="d-flex justify-content-center mt-4">
+                    <button id="paid-in-cash" class="mx-auto btn btn-warning">
+                        Xác nhận đã thanh toán bằng tiền mặt
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div layout:fragment="scripts">
+    <script th:src="@{/js/qrcode.min.js}"></script>
     <script>
         const appointmentItemId = [[${appointmentItem.id}]];
         const appointmentId = [[${appointment.id}]];

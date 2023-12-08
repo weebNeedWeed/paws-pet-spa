@@ -72,7 +72,7 @@ function inProgressHandle(service) {
     startServiceInterval();
 }
 
-function taskCompletedHandler() {
+function taskCompletedHandle() {
     const taskCard = document.getElementById(`task-${currentTaskNum}`);
     const badge = taskCard.querySelector(".badge");
     badge.classList.remove("text-bg-danger");
@@ -96,6 +96,35 @@ function convertSecondsToClock(seconds) {
     });
 
     return `${minutes} : ${secs}`;
+}
+
+function paymentHandle(url, client) {
+    const payment = document.getElementById("payment");
+    payment.classList.remove("d-none");
+    payment.classList.add("d-block");
+
+    const urlSpan = document.createElement("span");
+    urlSpan.innerText = url;
+
+    const qrBox = document.getElementById("qr-box");
+    qrBox.append(urlSpan);
+
+    new QRCode(document.getElementById("qr-code"), {
+        text: url,
+        width: 170,
+        height: 170,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    const button = document.getElementById("paid-in-cash");
+    button.onclick = () => {
+        client.publish({
+            destination: '/app/paid',
+            body: appointmentId
+        });
+    };
 }
 
 function initStompClient() {
@@ -128,7 +157,12 @@ function initStompClient() {
                 }
 
                 case "task_completed": {
-                    taskCompletedHandler();
+                    taskCompletedHandle();
+                    break;
+                }
+
+                case "payment": {
+                    paymentHandle(pl.payload, client);
                     break;
                 }
 

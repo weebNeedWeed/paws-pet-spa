@@ -2,16 +2,21 @@ package com.paws.controllers;
 
 import com.paws.entities.common.enums.AppointmentItemStatus;
 import com.paws.entities.common.enums.AppointmentStatus;
+import com.paws.exceptions.BillNotFoundException;
 import com.paws.jobs.CountdownTimerJob;
 import com.paws.models.websockets.MeasureWeightRequest;
 import com.paws.models.websockets.StartAppointmentRequest;
 import com.paws.models.websockets.StartSpaServiceRequest;
 import com.paws.models.websockets.WebSocketMessage;
+import com.paws.payloads.response.BillDto;
 import com.paws.services.appointments.AppointmentService;
 import com.paws.payloads.response.AppointmentDto;
 import com.paws.payloads.response.AppointmentItemDto;
 import com.paws.payloads.response.SpaSvcDto;
+import com.paws.services.payments.PaymentService;
+import com.paws.services.urlShortens.UrlShortenService;
 import org.quartz.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -26,10 +31,15 @@ import java.util.Date;
 public class WebSocketController {
     private final Scheduler scheduler;
     private final AppointmentService appointmentService;
+    private final PaymentService paymentService;
+    private final UrlShortenService urlShortenService;
 
-    public WebSocketController(Scheduler scheduler, AppointmentService appointmentService) {
+    @Autowired
+    public WebSocketController(Scheduler scheduler, AppointmentService appointmentService, PaymentService paymentService, UrlShortenService urlShortenService) {
         this.scheduler = scheduler;
         this.appointmentService = appointmentService;
+        this.paymentService = paymentService;
+        this.urlShortenService = urlShortenService;
     }
 
     @MessageMapping("/start-appointment")
@@ -42,13 +52,13 @@ public class WebSocketController {
 
         if(appointmentDto.getStatus() != AppointmentStatus.SCHEDULED &&
                 appointmentDto.getStatus() != AppointmentStatus.IN_PROGRESS) {
-            return new WebSocketMessage<Object>(null, "invalid_appointment");
+            return new WebSocketMessage<>(null, "invalid_appointment");
         }
 
         if(appointmentItemDto.getStatus() == null
                 || appointmentItemDto.getStatus() == AppointmentItemStatus.MEASURING_WEIGHT) {
             appointmentService.initDetailed(request.getAppointmentItemId());
-            return new WebSocketMessage<Object>(null, "start_measuring_weight");
+            return new WebSocketMessage<>(null, "start_measuring_weight");
         }
 
         if(appointmentItemDto.getStatus() == AppointmentItemStatus.IN_PROGRESS) {
@@ -62,15 +72,22 @@ public class WebSocketController {
                                 currentDoingTaskIndex,
                                 appointmentItemDto.getCurrentServiceEndingTime());
                     } catch (RuntimeException ex) {
-                        return new WebSocketMessage<Object>(null, "done");
+                        return new WebSocketMessage<>(null, "done");
                     }
                 }
 
-                return new WebSocketMessage<SpaSvcDto>(appointmentItemDto.getSpaServices().get(index + 1), "in_progress");
+                return new WebSocketMessage<>(appointmentItemDto.getSpaServices().get(index + 1), "in_progress");
             }
+
+            for(AppointmentItemDto item : appointmentDto.getAppointmentItems()) {
+                if(item.getId() != request.getAppointmentItemId() && item.getStatus() != AppointmentItemStatus.DONE) {
+                    return new WebSocketMessage<>(null, "done");
+                }
+            }
+            return startPayment(appointmentDto.getId());
         }
 
-        return new WebSocketMessage<Object>(null, "done");
+        return new WebSocketMessage<>(null, "done");
     }
 
     @MessageMapping("/measure-weight")
@@ -86,6 +103,12 @@ public class WebSocketController {
         return startSpaService(req, user);
     }
 
+    @MessageMapping("/paid")
+    @SendToUser("/queue/appointments")
+    public WebSocketMessage<?> setBillPaid(long appointmentId) {
+        return new WebSocketMessage<>(null, "done");
+    }
+
     public WebSocketMessage<?> startSpaService(StartSpaServiceRequest request, Principal user) throws Exception{
         AppointmentDto appointmentDto = appointmentService.getDetails(request.getAppointmentId());
         AppointmentItemDto appointmentItemDto = appointmentDto.getAppointmentItems().stream().filter(
@@ -93,7 +116,15 @@ public class WebSocketController {
         ).findFirst().orElseThrow();
 
         if(request.getTaskIndex() >= appointmentItemDto.getSpaServices().size()) {
-            throw new RuntimeException("Index out of bounds.");
+            for(AppointmentItemDto item : appointmentDto.getAppointmentItems()) {
+                if(item.getId() != request.getAppointmentItemId() && item.getStatus() != AppointmentItemStatus.DONE) {
+                    appointmentService.setDoneItem(appointmentItemDto.getId());
+                    return new WebSocketMessage<>(null, "done");
+                }
+            }
+
+            appointmentService.generateBill(appointmentDto.getId());
+            return startPayment(appointmentDto.getId());
         }
 
         SpaSvcDto service = appointmentItemDto.getSpaServices().get(request.getTaskIndex());
@@ -105,6 +136,15 @@ public class WebSocketController {
         startTimer(user.getName(), appointmentItemDto.getId(), request.getTaskIndex(), endTime);
 
         return new WebSocketMessage<SpaSvcDto>(service, "in_progress");
+    }
+
+    private WebSocketMessage<?> startPayment(long appointmentId) throws BillNotFoundException {
+        BillDto bill = appointmentService.getBill(appointmentId);
+        String paymentUrl = paymentService.createPaymentUrl(bill);
+
+        String shortened = urlShortenService.shorten("payment" + bill.getId(), paymentUrl);
+
+        return new WebSocketMessage<>(shortened, "payment");
     }
 
     private void startTimer(String username, long appointmentItemId, int currentDoingTaskIndex, LocalDateTime endTime) throws SchedulerException {

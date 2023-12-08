@@ -37,6 +37,9 @@ public class SpaService {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "spaServices", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private Set<AppointmentItem> appointmentItems = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "spaService", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    private List<BillItem> billItems = new ArrayList<>();
+
     public void addDetail(SpaServiceDetail detail) {
         this.spaServiceDetails.add(detail);
         detail.setSpaService(this);

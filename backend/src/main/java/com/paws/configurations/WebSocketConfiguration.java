@@ -24,22 +24,6 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/paws-ws").addInterceptors(new IpHandshakeInterceptor());
-    }
-
-    private static class IpHandshakeInterceptor implements HandshakeInterceptor {
-
-        public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
-                                       WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-
-            // Set ip attribute to WebSocket session
-            attributes.put("ip", request.getRemoteAddress());
-
-            return true;
-        }
-
-        public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
-                                   WebSocketHandler wsHandler, Exception exception) {
-        }
+        registry.addEndpoint("/paws-ws");
     }
 }

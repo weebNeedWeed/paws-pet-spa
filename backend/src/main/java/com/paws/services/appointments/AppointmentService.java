@@ -36,9 +36,9 @@ public interface AppointmentService {
 
     void setDoneItem(long appointmentItemId) throws AppointmentItemNotFoundException;
 
-    void setDoneAppointment(long appointmentId) throws AppointmentNotFoundException;
-
-    void generateBill(long appointmentId) throws AppointmentNotFoundException;
+    void generateBill(long appointmentId, String username) throws AppointmentNotFoundException, EmployeeNotFoundException;
 
     BillDto getBill(long appointmentId) throws BillNotFoundException;
+
+    void setPaidBill(long appointmentId) throws BillNotFoundException, AppointmentItemNotFoundException;
 }

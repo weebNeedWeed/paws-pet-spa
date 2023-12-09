@@ -5,6 +5,7 @@ import {
   addDays,
   addHours,
   addWeeks,
+  getDay,
 } from "date-fns";
 import { Button } from "../../../components/form";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
@@ -20,7 +21,13 @@ function BookingGrid() {
     formState: { errors },
   } = useFormContext();
 
+  // sunday is a day of the next week (by default)
+  // so that we need to remove the currentDate by 1 day to get the current week
   let currentDate = new Date();
+  if (getDay(currentDate) === 0) {
+    currentDate = addDays(currentDate, -1);
+  }
+
   if (nextWeek) {
     currentDate = addWeeks(currentDate, 1);
   }

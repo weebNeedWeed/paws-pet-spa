@@ -43,6 +43,10 @@ public class Bill {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="employee_id")
+    private Employee employee; // to see that who prompt customer payment if needed
+
     public void addItem(BillItem item) {
         billItems.add(item);
         item.setBill(this);

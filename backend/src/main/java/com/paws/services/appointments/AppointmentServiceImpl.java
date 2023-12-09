@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -357,25 +358,20 @@ public class AppointmentServiceImpl implements AppointmentService{
     }
 
     @Override
-    public void setDoneAppointment(long appointmentId) throws AppointmentNotFoundException {
+    @Transactional
+    public void generateBill(long appointmentId, String username) throws AppointmentNotFoundException, EmployeeNotFoundException {
         Appointment appointment = appointmentRepository.findById(appointmentId);
         if(appointment == null) {
             throw new AppointmentNotFoundException();
         }
 
-        appointment.setStatus(AppointmentStatus.COMPLETED);
-        appointmentRepository.save(appointment);
-    }
-
-    @Override
-    @Transactional
-    public void generateBill(long appointmentId) throws AppointmentNotFoundException {
-        Appointment appointment = appointmentRepository.findById(appointmentId);
-        if(appointment == null) {
-            throw new AppointmentNotFoundException();
+        Employee employee = employeeRepository.getEmployeeByUsername(username);
+        if(employee == null) {
+            throw new EmployeeNotFoundException();
         }
 
         Bill bill = new Bill();
+        bill.setEmployee(employee);
         bill.setAppointment(appointment);
         bill.setStatus(BillStatus.UN_PAID);
 
@@ -407,7 +403,6 @@ public class AppointmentServiceImpl implements AppointmentService{
     }
 
     @Override
-    @Transactional
     public BillDto getBill(long appointmentId) throws BillNotFoundException {
         Bill bill = billRepository.findById(appointmentId)
                 .orElseThrow(BillNotFoundException::new);
@@ -419,13 +414,23 @@ public class AppointmentServiceImpl implements AppointmentService{
         billDto.setCreatedAt(bill.getCreatedAt());
         billDto.setUpdatedAt(bill.getUpdatedAt());
 
-        List<BillItemDto> items = bill.getBillItems().stream().map(x -> {
-            DetailedAppointmentItem detailedItem = detailedAppointmentItemRepository.findById((long)x.getId());
+        Employee emp = bill.getEmployee();
+        billDto.setEmployee(new EmployeeDto());
+        billDto.getEmployee().setUsername(emp.getUsername());
+        billDto.getEmployee().setFullName(emp.getFullName());
+        billDto.getEmployee().setId(emp.getId());
 
+        Customer customer = bill.getAppointment().getCustomer();
+        billDto.setCustomer(new CustomerDto());
+        billDto.getCustomer().setUsername(customer.getUsername());
+        billDto.getCustomer().setFullName(customer.getFullName());
+        billDto.getCustomer().setAddress(customer.getAddress());
+
+        List<BillItemDto> items = bill.getBillItems().stream().map(x -> {
             BillItemDto dto = new BillItemDto();
             dto.setId(x.getId());
             dto.setPrice(x.getPrice());
-            dto.setPetWeight(detailedItem.getPetWeight());
+            dto.setPetWeight(x.getPetWeight());
             dto.setPetName(x.getPetName());
 
             PetType petType = x.getPetType();
@@ -444,6 +449,30 @@ public class AppointmentServiceImpl implements AppointmentService{
         billDto.setBillItems(items);
 
         return billDto;
+    }
+
+    @Override
+    @Transactional
+    public void setPaidBill(long appointmentId) throws BillNotFoundException, AppointmentItemNotFoundException {
+        Bill bill = billRepository.findById(appointmentId).orElseThrow(BillNotFoundException::new);
+        bill.setStatus(BillStatus.PAID);
+        billRepository.save(bill);
+
+        Appointment appointment = bill.getAppointment();
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+
+        List<AppointmentItem> items = appointment.getAppointmentItems();
+        for(AppointmentItem item : items) {
+            DetailedAppointmentItem detailedAppointmentItem = detailedAppointmentItemRepository.findById(item.getId())
+                    .orElseThrow(AppointmentItemNotFoundException::new);
+
+            if(detailedAppointmentItem.getStatus() != AppointmentItemStatus.DONE) {
+                detailedAppointmentItem.setStatus(AppointmentItemStatus.DONE);
+                detailedAppointmentItemRepository.save(detailedAppointmentItem);
+            }
+        }
+
+        appointmentRepository.save(appointment);
     }
 
     private BigDecimal calculatePriceByWeight(SpaService service, double weight) {

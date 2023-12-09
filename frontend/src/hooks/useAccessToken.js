@@ -28,7 +28,7 @@ export default function useAccessToken() {
     localStorage.removeItem(token_key);
     sessionStorage.removeItem(token_key);
 
-    setAccessToken("");
+    setAccessToken(undefined);
   }, []);
 
   return [accessToken, setAccessTokenWithRememberMeMode, invalidateAccessToken];

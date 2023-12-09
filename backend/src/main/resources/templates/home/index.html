@@ -3,16 +3,11 @@
       layout:decorate="~{/shared/_layout}"
       xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
-    <title>Content page</title>
+    <title>Home</title>
 </head>
 <body>
 <section layout:fragment="body">
-    <p>This is a paragraph from the content page</p>
-    <span sec:authentication="name"></span>
+    <p>Hello, <span sec:authentication="name"></span></p>
 </section>
-
-<div layout:fragment="scripts">
-    <script th:src="@{/js/test.js}"></script>
-</div>
 </body>
 </html>

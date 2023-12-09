@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import catPic1 from "./../../assets/cat1.png";
 import dogPic1 from "./../../assets/dog1.png";
 import Showcase from "./Showcase";
@@ -5,6 +6,9 @@ import Showcase from "./Showcase";
 function HomePage() {
   return (
     <div className="flex flex-col items-center">
+      <Helmet>
+        <title>Trang chủ | PAWS</title>
+      </Helmet>
       <Showcase
         to="/booking"
         btnLabel="Đặt hẹn ngay"

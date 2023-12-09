@@ -2,12 +2,10 @@ package com.paws.controllers;
 
 import com.paws.entities.common.enums.AppointmentItemStatus;
 import com.paws.entities.common.enums.AppointmentStatus;
+import com.paws.exceptions.AppointmentItemNotFoundException;
 import com.paws.exceptions.BillNotFoundException;
 import com.paws.jobs.CountdownTimerJob;
-import com.paws.models.websockets.MeasureWeightRequest;
-import com.paws.models.websockets.StartAppointmentRequest;
-import com.paws.models.websockets.StartSpaServiceRequest;
-import com.paws.models.websockets.WebSocketMessage;
+import com.paws.models.websockets.*;
 import com.paws.payloads.response.BillDto;
 import com.paws.services.appointments.AppointmentService;
 import com.paws.payloads.response.AppointmentDto;
@@ -65,7 +63,7 @@ public class WebSocketController {
             int index = appointmentItemDto.getDoneServiceIndex() == null ? -1 : appointmentItemDto.getDoneServiceIndex();
             if(index + 1 < appointmentItemDto.getSpaServices().size()) {
                 int currentDoingTaskIndex = index + 1;
-                if(!scheduler.checkExists(new JobKey(user.getName() + currentDoingTaskIndex, "timer"))) {
+                if(!scheduler.checkExists(new JobKey(user.getName() + appointmentItemDto.getId() + currentDoingTaskIndex, "timer"))) {
                     try {
                         startTimer(user.getName(),
                                 request.getAppointmentItemId(),
@@ -105,8 +103,9 @@ public class WebSocketController {
 
     @MessageMapping("/paid")
     @SendToUser("/queue/appointments")
-    public WebSocketMessage<?> setBillPaid(long appointmentId) {
-        return new WebSocketMessage<>(null, "done");
+    public WebSocketMessage<?> setPaidBill(long appointmentId) throws AppointmentItemNotFoundException, BillNotFoundException {
+        appointmentService.setPaidBill(appointmentId);
+        return new WebSocketMessage<>(null, "payment_success");
     }
 
     public WebSocketMessage<?> startSpaService(StartSpaServiceRequest request, Principal user) throws Exception{
@@ -123,7 +122,7 @@ public class WebSocketController {
                 }
             }
 
-            appointmentService.generateBill(appointmentDto.getId());
+            appointmentService.generateBill(appointmentDto.getId(), user.getName());
             return startPayment(appointmentDto.getId());
         }
 
@@ -135,7 +134,7 @@ public class WebSocketController {
 
         startTimer(user.getName(), appointmentItemDto.getId(), request.getTaskIndex(), endTime);
 
-        return new WebSocketMessage<SpaSvcDto>(service, "in_progress");
+        return new WebSocketMessage<>(service, "in_progress");
     }
 
     private WebSocketMessage<?> startPayment(long appointmentId) throws BillNotFoundException {
@@ -144,12 +143,16 @@ public class WebSocketController {
 
         String shortened = urlShortenService.shorten("payment" + bill.getId(), paymentUrl);
 
-        return new WebSocketMessage<>(shortened, "payment");
+        PaymentMessage msg = new PaymentMessage();
+        msg.setBill(bill);
+        msg.setPaymentUrl(shortened);
+
+        return new WebSocketMessage<>(msg, "payment");
     }
 
     private void startTimer(String username, long appointmentItemId, int currentDoingTaskIndex, LocalDateTime endTime) throws SchedulerException {
         JobDetail job = JobBuilder.newJob(CountdownTimerJob.class)
-                .withIdentity(username + currentDoingTaskIndex, "timer")
+                .withIdentity(username + appointmentItemId + currentDoingTaskIndex, "timer")
                 .usingJobData(CountdownTimerJob.USERNAME, username)
                 .usingJobData(CountdownTimerJob.APPOINTMENT_ITEM_ID, appointmentItemId)
                 .usingJobData("currentDoingTaskIndex", currentDoingTaskIndex)
@@ -165,7 +168,7 @@ public class WebSocketController {
 
         SimpleScheduleBuilder simpleScheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
         Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity(username + currentDoingTaskIndex,"trigger")
+                .withIdentity(username + appointmentItemId + currentDoingTaskIndex,"trigger")
                 .startNow()
                 .forJob(job)
                 .withSchedule(simpleScheduleBuilder

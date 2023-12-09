@@ -15,7 +15,7 @@ function startOverallInterval() {
         startButton.innerText = convertSecondsToClock(secs);
 
         startButton.dataset.secs = --secs;
-    }, 950);
+    }, 900);
 }
 
 function startServiceInterval() {
@@ -31,7 +31,7 @@ function startServiceInterval() {
         cardFooter.innerText = convertSecondsToClock(secs);
 
         cardFooter.dataset.secs = --secs;
-    }, 950);
+    }, 900);
 }
 
 function startMeasuringWeight() {
@@ -98,7 +98,19 @@ function convertSecondsToClock(seconds) {
     return `${minutes} : ${secs}`;
 }
 
-function paymentHandle(url, client) {
+function paymentHandle(paymentMsg, client) {
+    const {paymentUrl: url, bill} = paymentMsg;
+
+    const billUl = document.createElement("ul");
+    const li1 = document.createElement("li");
+    li1.innerHTML = `Mã giao dịch: <b>${bill.id}</b>`;
+    const li2 = document.createElement("li");
+    li2.innerHTML = `Số tiền: <b>${bill.totalAmount}</b>`;
+    const li3 = document.createElement("li");
+    li3.innerHTML = `Trạng thái: <b id="bill-status" class="text-danger">${bill.status === "UN_PAID" ? "Chưa thanh toán" : "Thanh toán thành công"}</b>`;
+
+    billUl.append(li1, li2, li3);
+
     const payment = document.getElementById("payment");
     payment.classList.remove("d-none");
     payment.classList.add("d-block");
@@ -106,10 +118,14 @@ function paymentHandle(url, client) {
     const urlSpan = document.createElement("span");
     urlSpan.innerText = url;
 
-    const qrBox = document.getElementById("qr-box");
-    qrBox.append(urlSpan);
+    const billBox = document.getElementById("bill-box");
+    billBox.innerHTML = "";
+    billBox.append(urlSpan);
+    billBox.append(billUl);
 
-    new QRCode(document.getElementById("qr-code"), {
+    const qrDiv = document.getElementById("qr-code");
+    qrDiv.innerHTML = "";
+    new QRCode(qrDiv, {
         text: url,
         width: 170,
         height: 170,
@@ -125,6 +141,17 @@ function paymentHandle(url, client) {
             body: appointmentId
         });
     };
+}
+
+function paymentSuccessHandle() {
+    const billStatus = document.getElementById("bill-status");
+    billStatus.innerText = "Thanh toán thành công";
+    billStatus.classList.remove("text-danger");
+    billStatus.classList.add("text-success");
+
+    document.getElementById("paid-in-cash").classList.add("d-none");
+
+    doneHandle();
 }
 
 function initStompClient() {
@@ -163,6 +190,11 @@ function initStompClient() {
 
                 case "payment": {
                     paymentHandle(pl.payload, client);
+                    break;
+                }
+
+                case "payment_success": {
+                    paymentSuccessHandle();
                     break;
                 }
 

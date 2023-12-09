@@ -13,8 +13,7 @@ import {
 } from "date-fns";
 import { useEffect, useMemo } from "react";
 import { useBookingContext } from "../../contexts/BookingContext";
-import useAccessToken from "../../hooks/useAccessToken";
-import useMakeAppointment from "../../hooks/useMakeAppointment";
+import { useMakeAppointment } from "../../hooks";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +27,6 @@ function ChoosingTimeForm() {
   } = methods;
 
   const navigate = useNavigate();
-  const [accessToken] = useAccessToken();
   const [{ step, location, note, registeredPets }] = useBookingContext();
   const {
     mutate: makeAppointment,

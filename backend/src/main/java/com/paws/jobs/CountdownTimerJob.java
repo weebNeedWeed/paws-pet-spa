@@ -8,7 +8,6 @@ import com.paws.models.websockets.TimerResponse;
 import com.paws.models.websockets.WebSocketMessage;
 import com.paws.repositories.AppointmentItemRepository;
 import com.paws.repositories.DetailedAppointmentItemRepository;
-import com.paws.repositories.SpaServiceRepository;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -21,22 +20,17 @@ import java.time.LocalDateTime;
 public class CountdownTimerJob implements Job {
     public static final String USERNAME = "username";
     public static final String APPOINTMENT_ITEM_ID = "appointmentItemId";
-    public static final String SERVICE_ID = "serviceId";
     private final SimpMessagingTemplate messagingTemplate;
     private final AppointmentItemRepository appointmentItemRepository;
     private final DetailedAppointmentItemRepository detailedAppointmentItemRepository;
-    private final SpaServiceRepository spaServiceRepository;
     private final WebSocketController webSocketController;
-    private final Scheduler scheduler;
 
     @Autowired
-    public CountdownTimerJob(SimpMessagingTemplate messagingTemplate, AppointmentItemRepository appointmentItemRepository, DetailedAppointmentItemRepository detailedAppointmentItemRepository, SpaServiceRepository spaServiceRepository, WebSocketController webSocketController, Scheduler scheduler) {
+    public CountdownTimerJob(SimpMessagingTemplate messagingTemplate, AppointmentItemRepository appointmentItemRepository, DetailedAppointmentItemRepository detailedAppointmentItemRepository, WebSocketController webSocketController) {
         this.messagingTemplate = messagingTemplate;
         this.appointmentItemRepository = appointmentItemRepository;
         this.detailedAppointmentItemRepository = detailedAppointmentItemRepository;
-        this.spaServiceRepository = spaServiceRepository;
         this.webSocketController = webSocketController;
-        this.scheduler = scheduler;
     }
 
     @Override

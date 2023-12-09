@@ -1,7 +1,6 @@
 import { RouterProvider } from "react-router-dom";
 import { createBrowserRouter } from "react-router-dom";
-import DefaultLayout from "./components/ui/DefaultLayout";
-import AuthLayout from "./components/ui/AuthLayout";
+import { DefaultLayout, AuthLayout } from "./components/ui";
 import HomePage from "./pages/home/HomePage";
 import LoginPage from "./pages/authentication/LoginPage";
 import RegisterPage from "./pages/authentication/RegisterPage";
@@ -10,6 +9,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContextProvider } from "./contexts/UserContext";
 import BookingPage from "./pages/booking/BookingPage";
+import { HelmetProvider } from "react-helmet-async";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "*",
+    element: <NotFoundPage />,
+  },
 ]);
 
 const queryClient = new QueryClient();
@@ -41,9 +46,11 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <UserContextProvider>
-        <RouterProvider router={router} />
-      </UserContextProvider>
+      <HelmetProvider>
+        <UserContextProvider>
+          <RouterProvider router={router} />
+        </UserContextProvider>
+      </HelmetProvider>
       <ToastContainer />
     </QueryClientProvider>
   );

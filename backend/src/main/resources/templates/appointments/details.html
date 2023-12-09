@@ -21,6 +21,10 @@
                 <button th:disabled="${!canApprove}" class="btn btn-warning">Xác nhận</button>
             </form>
 
+            <a class="btn btn-info" th:href="@{/appointments/{appointmentId}/bill(appointmentId=${appointment.id})}" th:if="${appointment.status.toString() == 'COMPLETED'}">
+                Xem hoá đơn
+            </a>
+
             <a type="button" class="btn btn-danger" th:href="@{/appointments}">Trở về</a>
         </div>
     </div>

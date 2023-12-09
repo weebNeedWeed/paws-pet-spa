@@ -5,6 +5,7 @@ import com.paws.entities.common.enums.AppointmentItemStatus;
 import com.paws.entities.common.enums.AppointmentStatus;
 import com.paws.exceptions.*;
 import com.paws.payloads.common.PagedResult;
+import com.paws.payloads.response.BillDto;
 import com.paws.services.appointments.AppointmentService;
 import com.paws.services.employees.EmployeeService;
 import com.paws.payloads.response.AppointmentDto;
@@ -13,6 +14,7 @@ import com.paws.payloads.response.EmployeeDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -43,7 +45,7 @@ public class AppointmentController {
     @PreAuthorize("isAuthenticated()")
     public String index(@RequestParam(value = "pageIndex", defaultValue = "0") int pageIndex,
                         @RequestParam(value = "pageSize", defaultValue = "10") int pageSize, Model model) {
-        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         PagedResult<AppointmentDto> result = appointmentService.getAll(pageable);
 
         model.addAttribute("pagedResult", result);
@@ -149,5 +151,14 @@ public class AppointmentController {
 
         redirectAttributes.addAttribute("appointmentId", appointmentId);
         return "redirect:/appointments/{appointmentId}/details";
+    }
+
+    @GetMapping("{appointmentId}/bill")
+    @PreAuthorize("isAuthenticated()")
+    public String showBill(@PathVariable("appointmentId") long appointmentId, Model model) throws BillNotFoundException {
+        BillDto bill = appointmentService.getBill(appointmentId);
+        model.addAttribute("bill", bill);
+
+        return "appointments/bill";
     }
 }

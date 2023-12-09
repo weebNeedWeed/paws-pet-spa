@@ -1,7 +1,7 @@
 import logo from "./../../assets/logo.svg";
 import { Link } from "react-router-dom";
 import { useUserContext } from "../../contexts/UserContext";
-import useLogout from "./../../hooks/useLogout";
+import { useLogout } from "./../../hooks";
 import { toast } from "react-toastify";
 
 function NavBar() {

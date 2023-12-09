@@ -1,9 +1,10 @@
 import { FormProvider, useForm } from "react-hook-form";
 import { Input, RadioButton } from "../../components/form";
 import { Link, useNavigate } from "react-router-dom";
-import useRegister from "./../../hooks/useRegister";
+import { useRegister } from "./../../hooks";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 
 const usernameValidation = {
   minLength: {
@@ -103,6 +104,10 @@ function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-sm">
+      <Helmet>
+        <title>Đăng ký | PAWS</title>
+      </Helmet>
+
       <FormProvider {...methods}>
         <form onSubmit={onSubmit} noValidate>
           <h2 className="text-liver font-bold text-3xl uppercase mb-4">
@@ -185,12 +190,21 @@ function RegisterPage() {
               {isRegLoading ? "Đang đăng ký..." : "Đăng ký"}
             </button>
 
-            <Link
-              to="/login"
-              className="pr-2 pb-2 underline text-liver font-normal text-sm"
-            >
-              Đăng nhập
-            </Link>
+            <div>
+              <Link
+                to="/"
+                className="mr-2 underline text-liver font-normal text-sm"
+              >
+                Trang chủ
+              </Link>
+              /
+              <Link
+                to="/login"
+                className="px-2 pb-2 underline text-liver font-normal text-sm"
+              >
+                Đăng nhập
+              </Link>
+            </div>
           </div>
         </form>
       </FormProvider>

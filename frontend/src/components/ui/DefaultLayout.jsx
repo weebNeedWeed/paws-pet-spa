@@ -1,12 +1,9 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import NavBar from "./NavBar";
-import Footer from "./Footer";
-import useGetUserProfile from "../../hooks/useGetUserProfile";
+import { NavBar, Footer } from "./";
+import { useGetUserProfile, useLogout, useAccessToken } from "../../hooks";
 import { useUserContext } from "../../contexts/UserContext";
 import { useEffect } from "react";
-import useLogout from "../../hooks/useLogout";
 import { toast } from "react-toastify";
-import useAccessToken from "../../hooks/useAccessToken";
 
 function DefaultLayout() {
   const [accessToken] = useAccessToken();

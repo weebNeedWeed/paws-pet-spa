@@ -21,4 +21,6 @@ public class BillDto {
     private List<BillItemDto> billItems;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private EmployeeDto employee;
+    private CustomerDto customer;
 }

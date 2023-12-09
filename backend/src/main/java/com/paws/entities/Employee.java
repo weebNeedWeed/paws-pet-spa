@@ -66,6 +66,10 @@ public class Employee {
             mappedBy = "employee")
     private List<AppointmentItem> appointmentItems = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            mappedBy = "employee")
+    private List<Bill> bills = new ArrayList<>();
+
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "employees")
     private Set<Role> roles = new HashSet<>();
 }

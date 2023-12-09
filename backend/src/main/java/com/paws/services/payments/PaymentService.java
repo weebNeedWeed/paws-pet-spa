@@ -1,10 +1,11 @@
 package com.paws.services.payments;
 
-import com.paws.entities.Bill;
+import com.paws.exceptions.InvalidPaymentResultException;
+import com.paws.payloads.request.ValidatePaymentResultRequest;
 import com.paws.payloads.response.BillDto;
-
-import java.math.BigDecimal;
 
 public interface PaymentService {
     String createPaymentUrl(BillDto bill);
+
+    void validatePaymentResult(ValidatePaymentResultRequest request) throws InvalidPaymentResultException;
 }

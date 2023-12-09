@@ -85,7 +85,7 @@ public class SecurityConfiguration {
                 .authenticationProvider(employeeAuthProvider())
                 .authorizeHttpRequests(x ->
                         x.requestMatchers("/css/**", "/js/**", "/assets/**").permitAll()
-                        .requestMatchers("/error", "/auth/**").permitAll()
+                        .requestMatchers("/error", "/auth/**", "/vnp_return", "/shorten/**").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(x -> x
                         .usernameParameter("username")

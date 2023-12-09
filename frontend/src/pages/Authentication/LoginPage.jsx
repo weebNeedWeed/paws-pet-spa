@@ -1,11 +1,11 @@
 import { FormProvider, useForm } from "react-hook-form";
 import { Input, Checkbox } from "../../components/form";
-import useLogin from "../../hooks/useLogin";
+import { useLogin, useAccessToken } from "../../hooks";
 import { toast } from "react-toastify";
-import useAccessToken from "../../hooks/useAccessToken";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const usernameValidation = {
   required: {
@@ -67,6 +67,10 @@ function LoginPage() {
 
   return (
     <div className="mx-auto max-w-sm">
+      <Helmet>
+        <title>Đăng nhập | PAWS</title>
+      </Helmet>
+
       <FormProvider {...methods}>
         <form onSubmit={onSubmit} noValidate>
           <h2 className="text-liver font-bold text-3xl uppercase mb-4">
@@ -100,12 +104,21 @@ function LoginPage() {
               {isLoginLoading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
 
-            <Link
-              to="/register"
-              className="pr-2 pb-2 underline text-liver font-normal text-sm"
-            >
-              Đăng ký
-            </Link>
+            <div>
+              <Link
+                to="/"
+                className="mr-2 underline text-liver font-normal text-sm"
+              >
+                Trang chủ
+              </Link>
+              /
+              <Link
+                to="/register"
+                className="px-2 pb-2 underline text-liver font-normal text-sm"
+              >
+                Đăng ký
+              </Link>
+            </div>
           </div>
         </form>
       </FormProvider>

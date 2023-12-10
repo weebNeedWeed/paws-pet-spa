@@ -69,6 +69,7 @@ public class AppointmentController {
 
         boolean canAssignEmp = appointment.getStatus() == AppointmentStatus.PENDING;
 
+        model.addAttribute("isDoingOtherAppointments", employeeService.isEmpDoingAppointment(principal.getName()));
         model.addAttribute("canApprove", canApprove);
         model.addAttribute("canAssignEmp", canAssignEmp);
         model.addAttribute("appointment", appointment);

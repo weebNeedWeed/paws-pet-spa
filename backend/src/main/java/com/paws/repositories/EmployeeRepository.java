@@ -18,4 +18,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query("select e from Employee e join fetch e.roles r where r.name in :roleNames")
     List<Employee> getAllEmployees(Set<String> roleNames);
+
+    @Query("select case when count(1) > 0 then true else false end from Employee e " +
+            "join e.appointmentItems i on e.id = i.employee.id " +
+            "join DetailedAppointmentItem d on i.id = d.id where d.status != 2 and e.username = :username")
+    boolean isEmpDoingAppointment(String username);
 }

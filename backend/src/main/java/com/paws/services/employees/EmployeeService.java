@@ -12,5 +12,7 @@ import java.util.Set;
 
 public interface EmployeeService {
     List<EmployeeDto> getAll(Set<String> roles);
+
+    boolean isEmpDoingAppointment(String empUsername);
 }
 

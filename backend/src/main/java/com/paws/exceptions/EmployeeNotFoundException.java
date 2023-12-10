@@ -10,6 +10,6 @@ public class EmployeeNotFoundException extends Exception implements PawsServiceE
 
     @Override
     public String getMessage() {
-        return "Employee does not exist.";
+        return "Không tìm thấy nhân viên";
     }
 }

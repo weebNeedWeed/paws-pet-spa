@@ -10,6 +10,6 @@ public class BillNotFoundException extends Exception implements PawsServiceExcep
 
     @Override
     public String getMessage() {
-        return "Bill not found";
+        return "Không tìm thấy bill";
     }
 }

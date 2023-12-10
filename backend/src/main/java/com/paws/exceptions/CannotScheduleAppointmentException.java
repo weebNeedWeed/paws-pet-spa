@@ -10,6 +10,6 @@ public class CannotScheduleAppointmentException extends Exception implements Paw
 
     @Override
     public String getMessage() {
-        return "Can not schedule the appointment.";
+        return "Không thể đặt lịch hẹn";
     }
 }

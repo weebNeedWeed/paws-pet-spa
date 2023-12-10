@@ -19,6 +19,6 @@ public class InvalidAppointmentStatusException extends Exception implements Paws
 
     @Override
     public String getMessage() {
-        return String.format("Invalid appointment status: expected %s, got %s", expected.getValue(), got.getValue());
+        return String.format("Trạng thái cuộc hẹn không đúng: yêu cầu %s, có được %s", expected.getValue(), got.getValue());
     }
 }

@@ -10,6 +10,6 @@ public class AppointmentNotFoundException extends Exception implements PawsServi
 
     @Override
     public String getMessage() {
-        return "Appointment does not exist.";
+        return "Không tìm thấy cuộc hẹn";
     }
 }

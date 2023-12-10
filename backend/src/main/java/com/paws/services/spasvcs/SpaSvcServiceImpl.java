@@ -162,13 +162,13 @@ public class SpaSvcServiceImpl implements SpaSvcService{
     }
 
     private SpaSvcDto mapSpaServiceToSpaSvcDto(SpaService spaService) {
-        SpaSvcDto spaSvcDto = SpaSvcDto.builder()
-                        .id(spaService.getId())
-                        .name(spaService.getName())
-                        .description(spaService.getDescription())
-                        .defaultPrice(spaService.getDefaultPrice())
-                        .defaultEstimatedCompletionMinutes(spaService.getDefaultEstimatedCompletionMinutes()).build();
+        SpaSvcDto dto = new SpaSvcDto();
+        dto.setId(spaService.getId());
+        dto.setName(spaService.getName());
+        dto.setDescription(spaService.getDescription());
+        dto.setDefaultPrice(spaService.getDefaultPrice());
+        dto.setDefaultEstimatedCompletionMinutes(spaService.getDefaultEstimatedCompletionMinutes());
 
-        return spaSvcDto;
+        return dto;
     }
 }

@@ -10,6 +10,6 @@ public class UsernameAlreadyExistsException extends Exception implements PawsSer
 
     @Override
     public String getMessage() {
-        return "Username already exists.";
+        return "Tên tài khoản đã tồn tại";
     }
 }

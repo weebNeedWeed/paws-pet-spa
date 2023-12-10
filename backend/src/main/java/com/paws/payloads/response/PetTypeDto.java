@@ -1,7 +1,5 @@
 package com.paws.payloads.response;
 
-import jakarta.persistence.Column;
-
 public class PetTypeDto {
     private long id;
     private String name;

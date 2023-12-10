@@ -1,6 +1,5 @@
 package com.paws.controllers;
 
-import com.paws.entities.common.RoleNameConstants;
 import com.paws.entities.common.enums.AppointmentItemStatus;
 import com.paws.entities.common.enums.AppointmentStatus;
 import com.paws.exceptions.*;
@@ -121,7 +120,7 @@ public class AppointmentController {
                 .orElseThrow(AppointmentItemNotFoundException::new);
 
         Set<String> requiredRoles = new HashSet<>();
-        requiredRoles.add(RoleNameConstants.NORMAL_EMPLOYEE);
+        requiredRoles.add("NORMAL_EMPLOYEE");
         List<EmployeeDto> employees = employeeService.getAll(requiredRoles);
 
         long selectedEmp = item.getEmployee() == null ? -1 : item.getEmployee().getId();

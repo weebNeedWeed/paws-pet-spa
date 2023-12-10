@@ -10,6 +10,6 @@ public class InvalidAppointmentTimeException extends Exception implements PawsSe
 
     @Override
     public String getMessage() {
-        return "Appointment time must be in one week after now.";
+        return "Thời gian hẹn phải trong vòng 2 tuần kể từ bây giờ";
     }
 }

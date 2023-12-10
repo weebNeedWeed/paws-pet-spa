@@ -20,6 +20,6 @@ public class InvalidWeightRangeException extends Exception implements PawsServic
 
     @Override
     public String getMessage() {
-        return String.format("The range from %f to %f is invalid.", min, max);
+        return String.format("Khoảng trọng lượng %f đến %f là bất hợp lý", min, max);
     }
 }

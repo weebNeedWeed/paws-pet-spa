@@ -10,6 +10,6 @@ public class NoEmployeeAssignedException extends Exception implements PawsServic
 
     @Override
     public String getMessage() {
-        return "No employee assigned.";
+        return "Không có nhân viên nào được sắp xếp";
     }
 }

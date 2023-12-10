@@ -10,6 +10,6 @@ public class SpaServiceNameAlreadyExistsException extends Exception implements P
 
     @Override
     public String getMessage() {
-        return "Service name already exists.";
+        return "Tên dịch vụ này đã tồn tại";
     }
 }

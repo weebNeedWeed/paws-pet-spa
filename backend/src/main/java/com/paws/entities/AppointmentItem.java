@@ -34,5 +34,6 @@ public class AppointmentItem {
     private Set<SpaService> spaServices = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 }

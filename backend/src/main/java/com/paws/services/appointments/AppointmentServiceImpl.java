@@ -75,8 +75,9 @@ public class AppointmentServiceImpl implements AppointmentService{
         JobDetail job = JobBuilder.newJob(CancelLateAppointmentJob.class)
                 .usingJobData(CancelLateAppointmentJob.APPOINTMENT_ID, appointmentId).build();
 
+        int cancelAfter = 1;
         Date timeToStart = Date.from(appointment.getAppointmentTime()
-                .plusMinutes(30).atZone(ZoneId.systemDefault()).toInstant());
+                .plusMinutes(cancelAfter).atZone(ZoneId.systemDefault()).toInstant());
 
         Trigger trigger = TriggerBuilder.newTrigger()
                 .forJob(job)

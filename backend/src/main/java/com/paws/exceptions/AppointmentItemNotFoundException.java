@@ -10,6 +10,6 @@ public class AppointmentItemNotFoundException extends Exception implements PawsS
 
     @Override
     public String getMessage() {
-        return "Appointment item does not exist.";
+        return "Không tìm thấy chi tiết cuộc hẹn";
     }
 }

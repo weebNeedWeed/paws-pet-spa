@@ -10,6 +10,6 @@ public class SpaServiceNotFoundException extends Exception implements PawsServic
 
     @Override
     public String getMessage() {
-        return "Service not found.";
+        return "Không tìm thấy dịch vụ";
     }
 }

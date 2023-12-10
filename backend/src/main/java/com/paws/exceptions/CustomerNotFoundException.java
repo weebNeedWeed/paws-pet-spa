@@ -10,6 +10,6 @@ public class CustomerNotFoundException extends Exception implements PawsServiceE
 
     @Override
     public String getMessage() {
-        return "Customer does not exist.";
+        return "Không tìm thấy khách hàng";
     }
 }

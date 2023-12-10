@@ -10,6 +10,6 @@ public class PetTypeNotFoundException extends Exception implements PawsServiceEx
 
     @Override
     public String getMessage() {
-        return "Pet type does not exist.";
+        return "Không tồn tại loại thú cưng";
     }
 }
